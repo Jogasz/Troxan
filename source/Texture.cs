@@ -9,33 +9,50 @@ internal sealed class Texture : IDisposable
 {
     public int Handle { get; }
 
-    static readonly string[] texturePaths =
-    {
-        //Tile textures
-        "assets/textures/planks.png",
-        "assets/textures/mossy_planks.png",
-        "assets/textures/stonebricks.png",
-        "assets/textures/mossy_stonebricks.png",
-        "assets/textures/door_stonebricks.png",
-        "assets/textures/door_mossy_stonebricks.png",
-        "assets/textures/window_stonebricks.png",
-        "assets/textures/window_mossy_stonebricks.png",
-    };
+    /* 
+     * Minden textúrafélének meg kellene csinálni a saját maga tárolóját a könnyebb kezelés érdekében.
+     * Ebből kiindulva valahogy egy teljesen univerzális bindot kellene csinálni.
+     */
 
-    static readonly string[] imagePaths =
+    static readonly string[] wallPaths =
     {
-        //Container textures
-        "assets/textures/gui/containers/mainmenu.png",
-        "assets/textures/gui/containers/pausemenu.png",
-        "assets/textures/gui/buttons_sheet.png"
+        //Map textures
+        "assets/textures/map/stonebricks.png",
+        "assets/textures/map/planks.png",
+        "assets/textures/map/door.png",
+        "assets/textures/map/window.png"
     };
 
     static readonly string[] spritePaths =
     {
-        //Sprite textures
+        //Objects atlas
         "assets/textures/map/sprites/objects_atlas.png",
+        //Ietms atlas
         "assets/textures/map/sprites/items_atlas.png",
-        "assets/textures/map/sprites/enemies_atlas.png"
+        //Enemies atlas
+        "assets/textures/map/sprites/enemies_atlas.png",
+        //Projectiles
+        "assets/textures/map/sprites/projectiles_atlas.png"
+    };
+
+    static readonly string[] containerPaths =
+    {
+
+    };
+
+    static readonly string[] HUDPaths =
+    {
+
+    };
+
+    static readonly string[] buttonsPath =
+    {
+
+    };
+
+    static readonly string[] fontPath =
+    {
+
     };
 
     public static List<Texture?> textures = new();
@@ -67,9 +84,24 @@ internal sealed class Texture : IDisposable
 
             mapSize = (mapWalls.GetLength(1), mapWalls.GetLength(0));
 
-            LoadInto(textures, texturePaths);
-            LoadInto(images, imagePaths);
-            LoadInto(sprites, spritePaths);
+            //LoadInto(textures, texturePaths);
+            //LoadInto(images, imagePaths);
+            //LoadInto(sprites, spritePaths);
+
+            // Ensure the font atlas (last texture in textures list) does not repeat UVs.
+            // The font atlas is appended as the last entry in texturePaths above.
+            if (textures.Count >0)
+            {
+                int fontIdx = textures.Count -1;
+                Texture? fontTex = textures[fontIdx];
+                if (fontTex != null)
+                {
+                    GL.BindTexture(TextureTarget.Texture2D, fontTex.Handle);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+                    GL.BindTexture(TextureTarget.Texture2D,0);
+                }
+            }
 
             Console.WriteLine(" - TEXTURES have been loaded!");
         }

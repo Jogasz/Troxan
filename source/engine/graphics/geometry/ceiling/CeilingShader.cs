@@ -45,8 +45,8 @@ internal partial class ShaderHandler
         CeilingShader.Use();
         CeilingShader.SetMatrix4("uProjMat", projection);
         CeilingShader.SetFloat("uMinimumScreenSize", minimumScreenSize);
-        CeilingShader.SetFloat("uTileSize", Settings.Gameplay.tileSize);
-        CeilingShader.SetFloat("uDistanceShade", Settings.Graphics.distanceShade);
+        CeilingShader.SetFloat("uTileSize", Settings.Gameplay.TileSize);
+        CeilingShader.SetFloat("uDistanceShade", Settings.Graphics.DistanceShade);
     }
 
     static void UpdateCeilingUniforms(float minimumScreenSize)
@@ -88,7 +88,7 @@ internal partial class ShaderHandler
 
         CeilingShader?.SetInt("uMapCeiling", 0);
 
-        CeilingShader?.SetVector2("uMapSize", new Vector2(Level.mapCeiling.GetLength(1), Level.mapCeiling.GetLength(0)));
+        CeilingShader?.SetVector2("uMapSize", new Vector2(Level.MapCeiling.GetLength(1), Level.MapCeiling.GetLength(0)));
         CeilingShader?.SetFloat("uStepSize", wallWidth);
         CeilingShader?.SetVector2("uPlayerPos", new Vector2(playerPosition.X, playerPosition.Y));
         CeilingShader?.SetFloat("uPlayerAngle", playerAngle);

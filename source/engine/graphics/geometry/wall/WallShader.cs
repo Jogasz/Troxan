@@ -61,9 +61,9 @@ internal partial class ShaderHandler
         //Uniforms
         WallShader.Use();
         WallShader.SetMatrix4("uProjMat", projection);
-        WallShader.SetFloat("uTileSize", Settings.Gameplay.tileSize);
+        WallShader.SetFloat("uTileSize", Settings.Gameplay.TileSize);
         WallShader.SetFloat("uMinimumScreenSize", minimumScreenSize);
-        WallShader.SetFloat("uDistanceShade", Settings.Graphics.distanceShade);
+        WallShader.SetFloat("uDistanceShade", Settings.Graphics.DistanceShade);
         WallShader.SetVector2("uScreenOffset", screenOffset);
     }
 

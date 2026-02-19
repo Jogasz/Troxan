@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -30,6 +30,14 @@
 
   <ItemGroup>
     <None Remove="assets\maps\map01.json" />
+    <None Remove="assets\maps\story\01.json" />
+    <None Remove="assets\maps\story\02.json" />
+    <None Remove="assets\maps\story\03.json" />
+    <None Remove="assets\maps\story\1.json" />
+    <None Remove="assets\maps\story\2.json" />
+    <None Remove="assets\maps\story\3.json" />
+    <None Remove="assets\maps\story\info.json" />
+    <None Remove="assets\maps\story\info.txt" />
     <None Remove="assets\textures\bricks.txt" />
     <None Remove="assets\textures\door_mossy_stonebricks.png" />
     <None Remove="assets\textures\door_mossy_stonebricks.txt" />
@@ -39,12 +47,15 @@
     <None Remove="assets\textures\gui\buttons_sheet.png" />
     <None Remove="assets\textures\gui\containers\mainmenu.png" />
     <None Remove="assets\textures\gui\containers\pausemenu.png" />
+    <None Remove="assets\textures\gui\containers\settingsmenu.png" />
+    <None Remove="assets\textures\gui\containers\statisticsmenu.png" />
     <None Remove="assets\textures\gui\hudTex\container.png" />
     <None Remove="assets\textures\gui\hudTex\running_effect.png" />
     <None Remove="assets\textures\gui\hudTex\sword.png" />
     <None Remove="assets\textures\gui\hudTex\vignette.png" />
     <None Remove="assets\textures\gui\mainmenu.png" />
     <None Remove="assets\textures\gui\pausemenu.png" />
+    <None Remove="assets\textures\gui\web_ibm_mda_atlas.png" />
     <None Remove="assets\textures\map\sprites\enemies_atlas.png" />
     <None Remove="assets\textures\map\sprites\items_atlas.png" />
     <None Remove="assets\textures\map\sprites\objects_atlas.png" />
@@ -71,7 +82,11 @@
     <None Remove="assets\textures\window_mossy_stonebricks.txt" />
     <None Remove="assets\textures\window_stonebricks.png" />
     <None Remove="assets\textures\window_stonebricks.txt" />
+    <None Remove="assets\user\user.json" />
+    <None Remove="assets\user\user.png" />
+    <None Remove="options.txt" />
     <None Remove="settings.json" />
+    <None Remove="settings.txt" />
     <None Remove="source\engine\graphics\geometry\ceiling\ceiling.frag" />
     <None Remove="source\engine\graphics\geometry\ceiling\ceiling.vert" />
     <None Remove="source\engine\graphics\geometry\floor\floor.frag" />
@@ -84,15 +99,23 @@
     <None Remove="source\engine\graphics\gui\menus\buttons\buttons.vert" />
     <None Remove="source\engine\graphics\gui\menus\containers\menus.frag" />
     <None Remove="source\engine\graphics\gui\menus\containers\menus.vert" />
+    <None Remove="source\engine\graphics\gui\texts\texts.frag" />
+    <None Remove="source\engine\graphics\gui\texts\texts.vert" />
     <None Remove="source\engine\graphics\window\window.frag" />
     <None Remove="source\engine\graphics\window\window.vert" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="assets\textures\door_mossy_stonebricks.png">
+    <Content Include="assets\maps\story\1.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\textures\door_stonebricks.png">
+    <Content Include="assets\maps\story\2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\info.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\textures\gui\buttons_sheet.png">
@@ -102,6 +125,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\textures\gui\containers\pausemenu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\gui\containers\settingsmenu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\gui\containers\statisticsmenu.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\textures\gui\hudTex\container.png">
@@ -116,6 +145,9 @@
     <Content Include="assets\textures\gui\hudTex\vignette.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="assets\textures\gui\web_ibm_mda_atlas.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="assets\textures\map\sprites\enemies_atlas.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -125,25 +157,7 @@
     <Content Include="assets\textures\map\sprites\objects_atlas.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\textures\map\sprites\projectile.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="assets\textures\mossy_planks.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="assets\textures\mossy_stonebricks.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="assets\textures\planks.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="assets\textures\stonebricks.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="assets\textures\window_mossy_stonebricks.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="assets\textures\window_stonebricks.png">
+    <Content Include="assets\user\user.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="settings.json">
@@ -185,6 +199,12 @@
     <Content Include="source\engine\graphics\gui\menus\containers\menus.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="source\engine\graphics\gui\texts\texts.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="source\engine\graphics\gui\texts\texts.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="source\engine\graphics\window\window.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -197,12 +217,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
     <PackageReference Include="StbImageSharp" Version="2.30.15" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="assets\maps\map01.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
 </Project>

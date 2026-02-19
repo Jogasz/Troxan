@@ -1,70 +1,130 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using OpenTK.Mathematics;
 
-public class Level
+namespace Engine;
+
+internal class Level
 {
-    public static int[,] mapWalls;
-    public static int[,] mapCeiling;
-    public static int[,] mapFloor;
-
-    public static List<SpriteData> Sprites { get; private set; } = new();
-
-    public void Load()
+    internal static bool[] levelFinished = Array.Empty<bool>();
+    internal static void FirstLoad(string filePath)
     {
-        string path = "assets/maps/map01.json";
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($" - File not found: '{filePath}'");
 
-        if (!File.Exists(path))
-            throw new FileNotFoundException($"Map file not found:\n - '{path}'");
+        var lines = File.ReadAllLines(filePath);
 
-        string jsonText = File.ReadAllText(path);
+        levelFinished = new bool[lines.Length];
 
-        var json = JsonConvert.DeserializeObject<MapData>(jsonText)
-            ?? throw new InvalidOperationException($"Failed to deserialize map file:\n - '{path}'");
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i].Trim();
 
-        int rows, cols;
+            levelFinished[i] = line == "1";
 
-        rows = json.MapCeiling.Count;
-        cols = json.MapCeiling[0].Count;
-        mapCeiling = new int[rows, cols];
-        for (int y = 0; y < rows; y++)
-            for (int x = 0; x < cols; x++)
-                mapCeiling[y, x] = json.MapCeiling[y][x];
+            string temp = levelFinished[i] ? "Finished" : "Not Finished";
 
-        rows = json.MapWalls.Count;
-        cols = json.MapWalls[0].Count;
-        mapWalls = new int[rows, cols];
-        for (int y = 0; y < rows; y++)
-            for (int x = 0; x < cols; x++)
-                mapWalls[y, x] = json.MapWalls[y][x];
-
-        rows = json.MapFloor.Count;
-        cols = json.MapFloor[0].Count;
-        mapFloor = new int[rows, cols];
-        for (int y = 0; y < rows; y++)
-            for (int x = 0; x < cols; x++)
-                mapFloor[y, x] = json.MapFloor[y][x];
-
-        Sprites = json.Sprites ?? new List<SpriteData>();
+            Console.WriteLine($"{i + 1}. Level: {temp}, '{Convert.ToString(levelFinished[i])}'");
+        }
     }
 
-    public sealed class SpriteData
+    internal static int[,] MapWalls { get; private set; } = new int[0, 0];
+    internal static int[,] MapCeiling { get; private set; } = new int[0, 0];
+    internal static int[,] MapFloor { get; private set; } = new int[0, 0];
+    internal static Vector2 PlayerStarterPosition { get; private set; }
+    internal static int PlayerStarterAngle { get; private set; }
+    internal static List<Sprite> Sprites { get; private set; } = new();
+
+    internal class Sprite
     {
+        //Needed properties
         public int Type { get; set; }
         public int Id { get; set; }
-        public bool isInteracted { get; set; } = false;
-        public bool State { get; set; } = true;
-        public int Health { get; set; }
+        public bool State { get; internal set; }
         public Vector2 Position { get; set; }
+
+        //Optional properties
+        public bool? Interacted { get; internal set; }
+        public int? Health { get; internal set; }
     }
 
-    private sealed class MapData
+    internal class Datas
     {
-        public List<List<int>> MapCeiling { get; set; } = new();
-        public List<List<int>> MapWalls { get; set; } = new();
-        public List<List<int>> MapFloor { get; set; } = new();
-        public List<SpriteData>? Sprites { get; set; }
+        internal static string Author { get; private set; } = "Unknown";
+        internal static string Name { get; private set; } = "Unknown";
+        internal static string Created { get; private set; } = "Unknown";
+    }
+
+    //typeId: Story=0, Custom=1
+    //mapId: choosen map's number
+    internal static void Load(int typeId, int mapId)
+    {
+        if (typeId != 0) return;
+
+        string filePath = $"assets/maps/story/{mapId}.json";
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($" - File not found: '{filePath}'");
+
+        var dto = JsonConvert.DeserializeObject<LevelDto>(File.ReadAllText(filePath)) ??
+            throw new InvalidOperationException($" - Failed to deserialize: '{filePath}'");
+
+        PlayerStarterPosition = new Vector2(dto.PlayerStarterPosition.X, dto.PlayerStarterPosition.Y);
+        PlayerStarterAngle = dto.PlayerStarterAngle;
+        MapCeiling = dto.MapCeiling;
+        MapWalls = dto.MapWalls;
+        MapFloor = dto.MapFloor;
+
+        Sprites.Clear();
+        Sprites.Capacity = dto.Sprites.Count;
+
+        for (int i = 0; i < dto.Sprites.Count; i++)
+        {
+            var src = dto.Sprites[i];
+
+            var dst = new Sprite
+            {
+                Type = src.Type,
+                Id = src.Id,
+                Position = src.Position,
+                State = true
+            };
+
+            switch (dst.Type)
+            {
+                //Object / Item
+                case 0:
+                case 1:
+                    dst.Interacted = false;
+                    break;
+                //Enemy
+                case 2:
+                    dst.Health = dst.Id switch
+                    {
+                        //Jiggler
+                        0 => 50,
+                        //Korvax
+                        1 => 70,
+                        //Default
+                        _ => null
+                    };
+                    break;
+            }
+
+            Sprites.Add(dst);
+        }
+    }
+
+    private sealed class LevelDto
+    {
+        public int[,] MapWalls { get; set; } = new int[0, 0];
+        public int[,] MapCeiling { get; set; } = new int[0, 0];
+        public int[,] MapFloor { get; set; } = new int[0, 0];
+        public Vector2 PlayerStarterPosition { get; set; }
+        public int PlayerStarterAngle { get; set; }
+        public List<Sprite> Sprites { get; set; } = new();
     }
 }

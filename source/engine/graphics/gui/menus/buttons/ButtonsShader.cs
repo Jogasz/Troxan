@@ -29,15 +29,15 @@ internal partial class ShaderHandler
 
         //Attribute0 (aPos)
         GL.EnableVertexAttribArray(0);
-        GL.VertexAttribPointer(0,4, VertexAttribPointerType.Float, false, 9 * sizeof(float), 0);
+        GL.VertexAttribPointer(0,4, VertexAttribPointerType.Float, false,9 * sizeof(float),0);
 
         //Attribute1 (aTexIndex)
         GL.EnableVertexAttribArray(1);
-        GL.VertexAttribPointer(1,1, VertexAttribPointerType.Float, false, 9 * sizeof(float), 4 * sizeof(float));
+        GL.VertexAttribPointer(1,1, VertexAttribPointerType.Float, false,9 * sizeof(float),4 * sizeof(float));
 
         //Attribute2 (aUvRect)
         GL.EnableVertexAttribArray(2);
-        GL.VertexAttribPointer(2,4, VertexAttribPointerType.Float, false, 9 * sizeof(float), 5 * sizeof(float));
+        GL.VertexAttribPointer(2,4, VertexAttribPointerType.Float, false,9 * sizeof(float),5 * sizeof(float));
 
         //Divisor
         GL.VertexAttribDivisor(0,1);
@@ -53,8 +53,8 @@ internal partial class ShaderHandler
         ButtonsShader.Use();
         ButtonsShader.SetMatrix4("uProjection", projection);
 
-        //CHANGED: tell shader which texture unit the buttons atlas is bound to (we bind image index2 to TextureUnit.Texture2 in DrawMenus)
-        ButtonsShader.SetInt("uButtonsAtlas",2);
+        // CHANGED: buttons_sheet is image index3 -> bound to TextureUnit.Texture3 in DrawMenus
+        ButtonsShader.SetInt("uButtonsAtlas",4);
     }
 
     internal static void UpdateButtonsUniforms()
@@ -63,8 +63,8 @@ internal partial class ShaderHandler
         ButtonsShader?.Use();
         ButtonsShader?.SetMatrix4("uProjection", projection);
 
-        //CHANGED: keep in sync on resize too
-        ButtonsShader?.SetInt("uButtonsAtlas",2);
+        // keep in sync on resize too
+        ButtonsShader?.SetInt("uButtonsAtlas",4);
     }
 
     internal static void LoadBufferAndClearButtons()
@@ -90,9 +90,9 @@ internal partial class ShaderHandler
         GL.BindVertexArray(ButtonsVAO);
         int menusLen = ButtonsVertices?.Length ??0;
 
-        int instanceCount = menusLen / 9;
+        int instanceCount = menusLen /9;
 
-        if (instanceCount > 0)
+        if (instanceCount >0)
         {
             GL.DrawArraysInstanced(PrimitiveType.TriangleStrip,0,4, instanceCount);
         }

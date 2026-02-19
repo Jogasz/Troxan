@@ -1,34 +1,17 @@
 {
   "Player": {
     "Health": 150,
-    "Armor": 50,
     "Stamina": 100,
     "MovementSpeed": 10,
     "MouseSensitivity": 2
   },
-  "Entites": [
-    {
-      "Name": "Fleshless",
-      "Health": 50,
-      "Armor": 0,
-      "MovementSpeed": 3.0
-    },
-    {
-      "Name": "RotWretch",
-      "Health": 80,
-      "Armor": 20,
-      "MovementSpeed": 2.0
-    }
-  ],
   "Graphics": {
     "FOV": 55,
     "RayCount": 1000,
-    "renderDistance": 10,
+    "RenderDistance": 10,
     "DistanceShade": 1
   },
   "Gameplay": {
-    "tileSize": 50,
-    "DifficultyLevel": "Normal",
-    "ShowDebug": true
+    "TileSize": 50
   }
 }

@@ -1,4 +1,9 @@
 {
+  "PlayerStarterPosition": {
+    "X": 5,
+    "Y": 1
+  },
+  "PlayerStarterAngle": 300,
   "MapCeiling": [
     [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],
     [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],
@@ -38,90 +43,26 @@
   "Sprites": [
     {
       "Type": 0,
-      "Id": 0,
+      "Id": 4,
       "Position": {
         "X": 1,
         "Y": 1
       }
     },
     {
-      "Type": 0,
-      "Id": 1,
+      "Type": 1,
+      "Id": 3,
       "Position": {
         "X": 2,
         "Y": 1
       }
     },
     {
-      "Type": 0,
-      "Id": 2,
+      "Type": 2,
+      "Id": 1,
       "Position": {
         "X": 3,
         "Y": 1
-      }
-    },
-    {
-      "Type": 0,
-      "Id": 3,
-      "Position": {
-        "X": 4,
-        "Y": 1
-      }
-    },
-    {
-      "Type": 0,
-      "Id": 4,
-      "Position": {
-        "X": 5,
-        "Y": 1
-      }
-    },
-    {
-      "Type": 0,
-      "Id": 5,
-      "Position": {
-        "X": 6,
-        "Y": 1
-      }
-    },
-    {
-      "Type": 0,
-      "Id": 6,
-      "Position": {
-        "X": 7,
-        "Y": 1
-      }
-    },
-    {
-      "Type": 1,
-      "Id": 0,
-      "Position": {
-        "X": 8,
-        "Y": 1
-      }
-    },
-    {
-      "Type": 1,
-      "Id": 1,
-      "Position": {
-        "X": 8,
-        "Y": 2
-      }
-    },
-    {
-      "Type": 2,
-      "Id": 0,
-      "Position": {
-        "X": 8,
-        "Y": 3
-      }
-    },
-    {
-      "Type": 2,
-      "Id": 1,
-      "Position": {
-        "X": 8,
-        "Y": 4
       }
     }
   ]

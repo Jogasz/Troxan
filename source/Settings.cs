@@ -1,77 +1,63 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
+using System.Text.Json;
+
+namespace Engine;
 
 internal class Settings
 {
-    public static PlayerSettings Player;
-    public static GraphicsSettings Graphics;
-    public static GameplaySettings Gameplay;
-
-    //Handles loading and storing all game settings from settings.json
-    public static void Load()
+    internal static class Player
     {
-        string rawText = File.ReadAllText("settings.json");
-
-        var convertedData = JsonConvert.DeserializeObject<SettingsData>(rawText);
-
-        Player = convertedData.Player;
-        Graphics = convertedData.Graphics;
-        Gameplay = convertedData.Gameplay;
+        internal static int Health { get; set; }
+        internal static int Stamina { get; set; }
+        internal static int MovementSpeed { get; set; }
+        internal static int MouseSensitivity { get; set; }
     }
 
-    //Represents the structure of the JSON data for deserialization
-    private class SettingsData
+    internal static class Graphics
     {
-        public PlayerSettings Player { get; set; }
-        public GraphicsSettings Graphics { get; set; }
-        public GameplaySettings Gameplay { get; set; }
+        internal static int FOV { get; set; }
+        internal static int RayCount { get; set; }
+        internal static int RenderDistance { get; set; }
+        internal static int DistanceShade { get; set; }
     }
 
-    //Stores player-related settings like speed and mouse sensitivity
-    public class PlayerSettings
+    internal static class Gameplay
     {
-        public int health { get; private set; }
-        public int armor { get; private set; }
-        public int stamina { get; private set; }
-        public float movementSpeed { get; private set; }
-        public float mouseSensitivity { get; private set; }
-
-
-        [JsonConstructor]
-        public PlayerSettings(int Health, int Armor, int Stamina, float MovementSpeed, float MouseSensitivity)
-        {
-            health = Health;
-            armor = Armor;
-            stamina = Stamina;
-            movementSpeed = MovementSpeed * 10;
-            mouseSensitivity = MouseSensitivity / 1000;
-        }
+        internal static int TileSize { get; set; }
     }
 
-    public class GraphicsSettings
+    internal static void Load(string filePath)
     {
-        public int FOV { get; private set; }
-        public int rayCount { get; private set; }
-        public int renderDistance { get; private set; }
-        public float distanceShade { get; private set; }
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($" - File Not found: '{filePath}'");
 
-        [JsonConstructor]
-        public GraphicsSettings(int fov, int RayCount, int RenderDistance, float DistanceShade) {
-            FOV = fov;
-            rayCount = RayCount;
-            renderDistance = RenderDistance;
-            distanceShade = (DistanceShade / 10);
-        }
-    }
+        //Reading JSON file's text and parsing it into a JSON document
+        //JsonDocument is IDisposable, so "using" will auto-dispose it at the end of this method
+        using var doc = JsonDocument.Parse(File.ReadAllText(filePath));
 
-    public class GameplaySettings
-    {
-        public int tileSize { get; private set; }
+        //Outer object of the JSON document
+        var root = doc.RootElement;
 
-        [JsonConstructor]
-        public GameplaySettings(int TileSize) {
-            tileSize = TileSize;
-        }
+        //Extracting objects from root
+        var playerObj = root.GetProperty("Player");
+        var graphicsObj = root.GetProperty("Graphics");
+        var gameplayObj = root.GetProperty("Gameplay");
+
+        //Loading player values
+        Player.Health = playerObj.GetProperty("Health").GetInt32();
+        Player.Stamina = playerObj.GetProperty("Stamina").GetInt32();
+        Player.MovementSpeed = playerObj.GetProperty("MovementSpeed").GetInt32();
+        Player.MouseSensitivity = playerObj.GetProperty("MouseSensitivity").GetInt32();
+
+        //Loading graphics values
+        Graphics.FOV = graphicsObj.GetProperty("FOV").GetInt32();
+        Graphics.RayCount = graphicsObj.GetProperty("RayCount").GetInt32();
+        Graphics.RenderDistance = graphicsObj.GetProperty("RenderDistance").GetInt32();
+        Graphics.DistanceShade = graphicsObj.GetProperty("DistanceShade").GetInt32();
+
+        //Loading gameplay values
+        Gameplay.TileSize = gameplayObj.GetProperty("TileSize").GetInt32();
     }
 }

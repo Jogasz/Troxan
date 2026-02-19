@@ -172,7 +172,7 @@ internal partial class ShaderHandler
     public static void LoadAll(Vector2i ClientSize, float minimumScreenSize, Vector2 screenOffset)
     {
         //Viewport and projection (bottom-left origin)
-        projection = Matrix4.CreateOrthographicOffCenter(0f, ClientSize.X, 0f, ClientSize.Y, -1f, 1f);
+        projection = Matrix4.CreateOrthographicOffCenter(0f, ClientSize.X,0f, ClientSize.Y, -1f,1f);
 
         LoadWindowShader(
             "source/engine/graphics/window/window.vert",
@@ -215,6 +215,11 @@ internal partial class ShaderHandler
             "source/engine/graphics/gui/menus/buttons/buttons.vert",
             "source/engine/graphics/gui/menus/buttons/buttons.frag",
             projection);
+
+        LoadTextsShader(
+            "source/engine/graphics/gui/texts/texts.vert",
+            "source/engine/graphics/gui/texts/texts.frag",
+            projection);
     }
 
     //OnFramebufferResize
@@ -234,6 +239,7 @@ internal partial class ShaderHandler
         UpdateMenusUniforms();
         UpdateButtonsUniforms();
         UpdateButtonsUniforms();
+        UpdateTextsUniforms();
     }
 
     //OnUpdateFrame
@@ -244,6 +250,7 @@ internal partial class ShaderHandler
         LoadBufferAndClearWall();
         LoadBufferAndClearFloor();
         LoadBufferAndClearSprite();
+        LoadBufferAndClearTexts();
     }
 
     //OnRenderFrame
@@ -284,7 +291,7 @@ internal partial class ShaderHandler
         GL.ActiveTexture(TextureUnit.Texture2);
         GL.BindTexture(TextureTarget.Texture2D, Texture.mapFloorTex);
 
- //3. -10.
+ //3. -N
         for (int i =0; i < Texture.textures.Count; i++)
         {
             Texture.Bind(i, TextureUnit.Texture3 + i);
@@ -304,11 +311,11 @@ internal partial class ShaderHandler
         Texture.BindSprite(1, TextureUnit.Texture1);
         //Enemies atlas
         Texture.BindSprite(2, TextureUnit.Texture2);
-        //Texture.BindSprite(2, TextureUnit.Texture2);
-        //Projectiles atlas
-        //Texture.BindSprite(3, TextureUnit.Texture3);
 
         DrawSprite();
+
+        //Text overlay (draw last so it's on top of everything)
+        DrawTexts();
     }
 
     //OnUnload
@@ -322,5 +329,7 @@ internal partial class ShaderHandler
         SpriteShader?.Dispose();
         MenusShader?.Dispose();
         ButtonsShader?.Dispose();
+
+        TextsShader?.Dispose();
     }
 }

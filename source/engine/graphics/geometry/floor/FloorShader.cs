@@ -52,8 +52,8 @@ internal partial class ShaderHandler
         FloorShader.SetMatrix4("uProjMat", projection);
         FloorShader.SetVector2("uClientSize", ClientSize);
         FloorShader.SetFloat("uMinimumScreenSize", minimumScreenSize);
-        FloorShader.SetFloat("uTileSize", Settings.Gameplay.tileSize);
-        FloorShader.SetFloat("uDistanceShade", Settings.Graphics.distanceShade);
+        FloorShader.SetFloat("uTileSize", Settings.Gameplay.TileSize);
+        FloorShader.SetFloat("uDistanceShade", Settings.Graphics.DistanceShade);
     }
 
     static void UpdateFloorUniforms(
@@ -98,7 +98,7 @@ internal partial class ShaderHandler
 
         FloorShader?.SetInt("uMapFloor", 2);
 
-        FloorShader?.SetVector2("uMapSize", new Vector2(Level.mapFloor.GetLength(1), Level.mapFloor.GetLength(0)));
+        FloorShader?.SetVector2("uMapSize", new Vector2(Level.MapFloor.GetLength(1), Level.MapFloor.GetLength(0)));
         FloorShader?.SetFloat("uStepSize", wallWidth);
         FloorShader?.SetVector2("uPlayerPos", new Vector2(playerPosition.X, playerPosition.Y));
         FloorShader?.SetFloat("uPlayerAngle", playerAngle);

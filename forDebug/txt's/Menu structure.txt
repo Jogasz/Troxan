@@ -1,0 +1,35 @@
+A menükhöz 2db shader kell
+- Menü shader
+- Gomb shader
+
+A menü shader fogja kirajolni az adott háttérképet a menühöz
+A gomb shader annyiszor fut le, amennyi gomb van, külön adatokkal, és külön hozzárendelt képekkel és hitbox-al
+
+Menus.cs
+menus.vert
+menus.frag
+
+Buttons.cs
+buttons.vert
+buttons.frag
+
+Menus:
+- Main menu:
+	- New Game (New Game + Continue helyett Play, ha nincs savestate)
+	- Continue
+	- Settings (Menü):
+		- n Settings
+	- Exit
+- Pause Menu
+	- Continue
+	- Settings
+	Back to Main Menu
+
+- Settings Menu:
+	- temp
+	- temp
+	- temp
+	- temp
+	- temp
+
+source engine graphics gui menu buttons frag/vert
