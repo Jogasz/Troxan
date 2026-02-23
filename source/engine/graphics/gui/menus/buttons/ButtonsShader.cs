@@ -1,7 +1,8 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using Sources;
 
-namespace Engine;
+namespace Shaders;
 
 internal partial class ShaderHandler
 {
@@ -52,9 +53,6 @@ internal partial class ShaderHandler
         //Uniforms
         ButtonsShader.Use();
         ButtonsShader.SetMatrix4("uProjection", projection);
-
-        // CHANGED: buttons_sheet is image index3 -> bound to TextureUnit.Texture3 in DrawMenus
-        ButtonsShader.SetInt("uButtonsAtlas",4);
     }
 
     internal static void UpdateButtonsUniforms()
@@ -62,9 +60,6 @@ internal partial class ShaderHandler
         //ButtonsShader
         ButtonsShader?.Use();
         ButtonsShader?.SetMatrix4("uProjection", projection);
-
-        // keep in sync on resize too
-        ButtonsShader?.SetInt("uButtonsAtlas",4);
     }
 
     internal static void LoadBufferAndClearButtons()
@@ -86,6 +81,10 @@ internal partial class ShaderHandler
     internal static void DrawButtons()
     {
         ButtonsShader?.Use();
+
+        Textures.BindTex(Textures.Buttons, 0, TextureUnit.Texture0);
+        ButtonsShader?.SetInt("uButtonsAtlas", 0);
+
         //Binding and drawing
         GL.BindVertexArray(ButtonsVAO);
         int menusLen = ButtonsVertices?.Length ??0;

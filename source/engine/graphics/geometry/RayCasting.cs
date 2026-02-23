@@ -5,6 +5,8 @@ using OpenTK.Mathematics;
 using System.Text;
 using System.Threading.Tasks;
 
+using Sources;
+
 namespace Engine;
 
 internal partial class RayCasting
@@ -300,7 +302,7 @@ internal partial class RayCasting
                 (rayLength * (float)Math.Cos(playerAngle -
                 (playerAngle + FOVStart + i * radBetweenRays))));
 
-            ComputeCeiling(
+            LoadCeilingAttribs(
                 distanceShade,
                 minimumScreenSize,
                 screenHorizontalOffset,
@@ -313,7 +315,7 @@ internal partial class RayCasting
                 debugBorder
             );
 
-            ComputeFloor(
+            LoadFloorAttribs(
                 distanceShade,
                 minimumScreenSize,
                 screenHorizontalOffset,
@@ -328,7 +330,7 @@ internal partial class RayCasting
 
             if (wallType != 0)
             {
-                ComputeWalls(
+                LoadWallAttribs(
                     ClientSize,
                     distanceShade,
                     minimumScreenSize,

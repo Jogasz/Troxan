@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
 
-namespace Engine;
+namespace Sources;
 
 internal class Utils
 {

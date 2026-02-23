@@ -1,7 +1,9 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
-namespace Engine;
+using Sources;
+
+namespace Shaders;
 
 internal partial class ShaderHandler
 {
@@ -55,10 +57,6 @@ internal partial class ShaderHandler
         SpriteShader.SetMatrix4("uProjection", projection);
         SpriteShader.SetFloat("uMinimumScreenSize", minimumScreenSize);
         SpriteShader.SetVector2("uScreenOffset", screenOffset);
-        
-        SpriteShader.SetInt("uSprites[0]",0);
-        SpriteShader.SetInt("uSprites[1]",1);
-        SpriteShader.SetInt("uSprites[2]",2);
     }
 
     static void UpdateSpriteUniforms(
@@ -91,6 +89,17 @@ internal partial class ShaderHandler
     static void DrawSprite()
     {
         SpriteShader?.Use();
+
+        //Objects atlas
+        Textures.BindTex(Textures.Sprites, 0, TextureUnit.Texture0);
+        //Items atlas
+        Textures.BindTex(Textures.Sprites, 1, TextureUnit.Texture1);
+        //Enemies atlas
+        Textures.BindTex(Textures.Sprites, 2, TextureUnit.Texture2);
+
+        SpriteShader?.SetInt("uSprites[0]", 0);
+        SpriteShader?.SetInt("uSprites[1]", 1);
+        SpriteShader?.SetInt("uSprites[2]", 2);
 
         //Sprites use explicit alpha in the fragment shader, so enable blending here.
         GL.Enable(EnableCap.Blend);

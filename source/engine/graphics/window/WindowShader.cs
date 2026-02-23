@@ -1,7 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
-namespace Engine;
+namespace Shaders;
 
 internal partial class ShaderHandler
 {
@@ -67,7 +67,7 @@ internal partial class ShaderHandler
         WindowVertexAttribList.Clear();
     }
 
-    static void DrawWindow()
+    public static void DrawWindow()
     {
         WindowShader?.Use();
         //Binding and drawing

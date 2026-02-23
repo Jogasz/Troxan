@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Shaders;
+
 namespace Engine;
 
 internal partial class RayCasting
 {
-    public static void ComputeCeiling(
+    public static void LoadCeilingAttribs(
         float distanceShade,
         float minimumScreenSize,
         float screenHorizontalOffset,

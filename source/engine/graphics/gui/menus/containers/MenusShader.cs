@@ -1,7 +1,9 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
-namespace Engine;
+using Sources;
+
+namespace Shaders;
 
 internal partial class ShaderHandler
 {
@@ -66,26 +68,22 @@ internal partial class ShaderHandler
         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         //CLEARING LIST
         MenusVertexAttribList.Clear();
-
-        LoadBufferAndClearButtons();
     }
 
     internal static void DrawMenus()
     {
-        // 0. - 1.
-        for (int i = 0; i < Texture.images.Count; i++)
+        for (int i = 0; i < Textures.Containers.Count; i++)
         {
-            Texture.BindImage(i, TextureUnit.Texture0 + i);
+            Textures.BindTex(Textures.Containers, i, TextureUnit.Texture0 + i);
         }
 
         MenusShader?.Use();
 
-        //Sprites use explicit alpha in the fragment shader, so enable blending here.
         GL.Enable(EnableCap.Blend);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
         //Uniforms
-        for (int i = 0; i < Texture.images.Count; i++)
+        for (int i = 0; i < Textures.Containers.Count; i++)
         {
             MenusShader?.SetInt($"uTextures[{i}]", i);
         }

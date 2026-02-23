@@ -3,6 +3,8 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Threading.Tasks;
 
+using Sources;
+
 namespace Engine;
 
 internal partial class Engine

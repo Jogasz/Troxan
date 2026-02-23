@@ -6,6 +6,10 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Diagnostics;
 
+using Root;
+using Sources;
+using Shaders;
+
 namespace Engine;
 
 internal partial class Engine : GameWindow
@@ -16,29 +20,40 @@ internal partial class Engine : GameWindow
     int FOV = Settings.Graphics.FOV;
     int rayCount { get; set; } = Settings.Graphics.RayCount;
     int renderDistance = Settings.Graphics.RenderDistance;
-    float distanceShade = Settings.Graphics.DistanceShade;
+    float distanceShade = Settings.Graphics.DistanceShade / 10f;
     int tileSize = Settings.Gameplay.TileSize;
-    readonly int[,] mapCeiling = Level.MapCeiling;
-    readonly int[,] mapFloor = Level.MapFloor;
+    int[,] mapCeiling = Level.MapCeiling;
+    int[,] mapFloor = Level.MapFloor;
     int[,] mapWalls = Level.MapWalls;
-    float playerMovementSpeed = Settings.Player.MovementSpeed;
-    float mouseSensitivity = Settings.Player.MouseSensitivity;
+    float playerMovementSpeed = Settings.Player.MovementSpeed * 10f;
+    float mouseSensitivity = Settings.Player.MouseSensitivity / 1000f;
 
     //DeltaTime
     float deltaTime { get; set; }
     float deltaLastTime { get; set; }
 
     //Player variables
-    Vector2 playerPosition { get; set; } = new Vector2(250, 250);
-    float playerAngle { get; set; } = 0f;
+    Vector2 playerPosition { get; set; }
+    float playerAngle { get; set; }
     const float playerCollisionRadius = 10f;
     float pitch { get; set; } = 0f;
 
     //Bools for menus
-    internal bool isInMainMenu = true;
-    internal bool isInPauseMenu = false;
-    internal bool isInStatisticsMenu = false;
-    internal bool isInSettingsMenu = false;
+    enum MenuId
+    {
+        None,
+        Main,
+        Campaign,
+        Customs,
+        Statistics,
+        Settings,
+        Pause,
+        LvlCompleted
+    }
+
+    MenuId currentMenu = MenuId.Main;
+
+    internal bool isInGame => currentMenu == MenuId.None;
 
     //Engine
     Stopwatch stopwatch { get; set; } = new Stopwatch();
@@ -60,7 +75,7 @@ internal partial class Engine : GameWindow
         ClientSize = (width, height),
         Title = title,
 
-        WindowState = WindowState.Fullscreen,
+        //WindowState = WindowState.Fullscreen,
         WindowBorder = WindowBorder.Resizable,
     })
     {
@@ -70,6 +85,16 @@ internal partial class Engine : GameWindow
     protected override void OnLoad()
     {
         base.OnLoad();
+
+        InitMenuHandlers();
+        playerPosition = (
+            Level.PlayerStarterPosition.X * tileSize + (tileSize / 2f),
+            Level.PlayerStarterPosition.Y * tileSize + (tileSize / 2f));
+        playerAngle = MathHelper.DegreesToRadians(Level.PlayerStarterAngle);
+        distanceShade = Level.DistanceShade;
+        mapCeiling = Level.MapCeiling;
+        mapWalls = Level.MapWalls;
+        mapFloor = Level.MapFloor;
 
         //Viewport
         Utils.SetViewport(ClientSize.X, ClientSize.Y);
@@ -84,10 +109,11 @@ internal partial class Engine : GameWindow
         //Render distance limiter
         renderDistance = Math.Min(renderDistance, Math.Max(mapWalls.GetLength(0), mapWalls.GetLength(1)));
 
-        //Loading textures + Exception handling
+        //Loading textures
         try
         {
-            Texture.LoadAll(mapWalls, mapCeiling, mapFloor);
+            Textures.LoadAll(mapWalls, mapCeiling, mapFloor);
+            Console.WriteLine("Textures loaded!");
         }
         catch (FileNotFoundException noFileEx)
         {
@@ -102,14 +128,14 @@ internal partial class Engine : GameWindow
             Console.WriteLine($"Textures: Something went wrong...\n - {e}");
         }
 
-        //Loading shaders + Exception handling
+        //Loading shaders
         try
         {
             ShaderHandler.LoadAll(
                 ClientSize,
                 minimumScreenSize,
                 new Vector2(screenHorizontalOffset, screenVerticalOffset));
-            Console.WriteLine(" - SHADERS have been loaded!");
+            Console.WriteLine("Shaders loaded!");
         }
         catch (FileNotFoundException noFileEx)
         {
@@ -124,7 +150,6 @@ internal partial class Engine : GameWindow
             Console.WriteLine($"Shader: Something went wrong...\n - {e}");
         }
 
-        //Stopwatch for delta time
         stopwatch.Start();
     }
     
@@ -160,7 +185,29 @@ internal partial class Engine : GameWindow
         deltaLastTime = currentTime;
         //=========================================================================================
 
-        //Per-second FPS measurement for display
+        //Menus
+        //=========================================================================================
+        //If player opens pause menu in game
+        if (isInGame && KeyboardState.IsKeyPressed(Keys.Escape))
+        {
+            currentMenu = MenuId.Pause;
+        }
+
+        //Handling menus
+        if (!isInGame)
+        {
+            CursorState = CursorState.Normal;
+            HandleAllMenus();
+            ShaderHandler.LoadBufferAndClear();
+            return;
+        }
+        //=========================================================================================
+
+        //Game
+        //=========================================================================================
+        CursorState = CursorState.Grabbed;
+        
+        //Per - second FPS measurement for display
         fpsFrameCounter++;
         fpsSecondTimer += deltaTime;
         if (fpsSecondTimer >= 1.0f)
@@ -171,72 +218,16 @@ internal partial class Engine : GameWindow
             fpsSecondTimer -= 1.0f; //carry remainder
         }
 
-        //Handling main menu
-        if (isInMainMenu)
-        {
-            CursorState = CursorState.Normal;
-            MainMenu();
-            ShaderHandler.LoadBufferAndClearMenus();
-            return;
-        }
-
-        //Handling statistics menu
-        if (isInStatisticsMenu)
-        {
-            CursorState = CursorState.Normal;
-            StatisticsMenu();
-
-            ShaderHandler.LoadBufferAndClearMenus();
-            ShaderHandler.LoadBufferAndClearTexts();
-            return;
-        }
-
-        //Handling settings menu
-        if (isInSettingsMenu)
-        {
-            CursorState = CursorState.Normal;
-            SettingsMenu();
-            ShaderHandler.LoadBufferAndClearMenus();
-            return;
-        }
-
-        if (KeyboardState.IsKeyPressed(Keys.Escape)) isInPauseMenu = true;
-
-        //Handling pause menu
-        if (isInPauseMenu)
-        {
-            CursorState = CursorState.Normal;
-            PauseMenu();
-            ShaderHandler.LoadBufferAndClearMenus();
-            return;
-        }
-
         //Handling controls
         Controls(KeyboardState, MouseState);
-        //=========================================================================================
-
-        //!!!!!!!!!!!!!!!!!
-        //Lehet nem kell!!!
-        //!!!!!!!!!!!!!!!!!
-
+        
         //Allowed screen's color
-        ShaderHandler.WindowVertexAttribList.AddRange(new float[]
-        {
-            screenHorizontalOffset,
-            screenHorizontalOffset + minimumScreenSize,
-            screenVerticalOffset,
-            screenVerticalOffset + minimumScreenSize,
-            0.3f,
-            0.5f,
-            0.9f
-        });
-        //=========================================================================================
-
+        LoadWindowAttribs();
+        
         //Raycount limiter
         rayCount = Math.Min(Settings.Graphics.RayCount, (int)minimumScreenSize);
         // recompute wallWidth here so Engine and RayCasting use same value
         wallWidth = minimumScreenSize / Math.Max(1, rayCount);
-        //=============================================================================================
         
         //Raycasting:
         // 1. RayCasting logic engine
@@ -264,22 +255,21 @@ internal partial class Engine : GameWindow
 
         //Sprites
         //Sprites are not in the RayCasting because they use3D matrix
-        //ComputeSprites();
-        //=============================================================================================
-
+        LoadSpriteAttribs();
+        
         float lineSpacing = minimumScreenSize / 100f;
         float lineHeight = minimumScreenSize / 50f;
 
         //Text overlay: update only once per second
-        DrawText(
+        LoadTextAttribs(
             $"FPS: {displayedFPS}",
-            screenHorizontalOffset + (minimumScreenSize /80f),
-            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f),
+            screenHorizontalOffset + (minimumScreenSize / 80f),
+            screenVerticalOffset + minimumScreenSize - (minimumScreenSize / 80f),
             1f,
-            new Vector3(1f,1f,1f)
+            new Vector3(1f, 1f, 1f)
         );
 
-        DrawText(
+        LoadTextAttribs(
             $"X: {playerPosition.X}",
             screenHorizontalOffset + (minimumScreenSize / 80f),
             screenVerticalOffset + minimumScreenSize - (minimumScreenSize / 80f) - lineHeight - lineSpacing,
@@ -287,7 +277,7 @@ internal partial class Engine : GameWindow
             new Vector3(1f, 1f, 1f)
         );
 
-        DrawText(
+        LoadTextAttribs(
             $"Y: {playerPosition.Y}",
             screenHorizontalOffset + (minimumScreenSize / 80f),
             screenVerticalOffset + minimumScreenSize - (minimumScreenSize / 80f) - (lineHeight * 2) - (lineSpacing * 2),
@@ -315,37 +305,23 @@ internal partial class Engine : GameWindow
         GL.ClearColor(0.0f,0.0f,0.0f,1.0f);
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
-        if (isInMainMenu)
-        {
-            ShaderHandler.DrawMenus();
-            SwapBuffers();
-            return;
-        }
-
-        if (isInStatisticsMenu)
+        //Allowed screen's color
+        ShaderHandler.DrawWindow();
+        
+        if (!isInGame)
         {
             ShaderHandler.DrawMenus();
             ShaderHandler.DrawTexts();
             SwapBuffers();
             return;
         }
-
-        if (isInSettingsMenu)
+        else
         {
-            ShaderHandler.DrawMenus();
-            SwapBuffers();
-            return;
-        }
-
-        ShaderHandler.DrawGame(
-            wallWidth,
-            playerPosition,
-            playerAngle,
-            pitch);
-
-        if (isInPauseMenu)
-        {
-            ShaderHandler.DrawMenus();
+            ShaderHandler.DrawGame(
+                wallWidth,
+                playerPosition,
+                playerAngle,
+                pitch);
         }
 
         SwapBuffers();

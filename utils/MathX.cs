@@ -1,5 +1,7 @@
 ﻿using System;
 
+namespace Sources;
+
 public static class MathX {
     //Default math variables
     public const float Quadrant1 = (float)Math.PI / 2;

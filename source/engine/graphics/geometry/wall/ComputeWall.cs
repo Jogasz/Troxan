@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Shaders;
+
 namespace Engine;
 
 internal partial class RayCasting
 {
-    public static void ComputeWalls(
+    public static void LoadWallAttribs(
         Vector2i ClientSize,
         float distanceShade,
         float minimumScreenSize,

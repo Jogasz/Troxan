@@ -2,58 +2,154 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Mathematics;
 
+using Shaders;
+using Sources;
+
 namespace Engine;
 
 internal partial class Engine
 {
     /* Menu background ID translator
      * 0. Main Menu
-     * 1. Pause Menu
-     * 2. Statistics Menu
+     * 1. Campaign
+     * 2. Customs
      * 3. Settings Menu
+     * 4. Statistics Menu
+     * 5. Pause Menu
+     * 6. Level Completed Menu
      */
 
     /* Buttons ID Translator
-     * 0. Contiune
-     * 1. New Game
-     * 2. Play
-     * 3. Settings
-     * 4. Statistics
-     * 5. Exit
-     * 6. Back to Game
+     * 0. Campaing
+     * 1. Customs
+     * 2. Settings
+     * 3. Statistics
+     * 4. Continue
+     * 5. New Game
+     * 6. Exit
+     * 7. Back
+     * 8. Back to Game
+     * 9. Main Menu
+     * 10. Next Level
+     * 11. 'Left Arrow'
+     * 12. 'Right Arrow'
+     * 13. 'Up Arrow'
+     * 14. 'Down Arrow'
      */
 
-    //Handling main menu
+    Dictionary<MenuId, Action> menuHandlers;
+
+    void InitMenuHandlers()
+    {
+        menuHandlers = new()
+        {
+            [MenuId.Main] = HandleMainMenu,
+            [MenuId.Campaign] = HandleCampaignMenu,
+            [MenuId.Customs] = HandleCustomsMenu,
+            [MenuId.Statistics] = HandleStatisticsMenu,
+            [MenuId.Settings] = HandleSettingsMenu,
+            [MenuId.Pause] = HandlePauseMenu,
+            //[MenuId.LvlCompleted] = HandleLvlCompletedMenu,
+        };
+    }
 
     internal static int[] buttonIds;
-    void MainMenu()
-    {
-        if (isSaveState) buttonIds = new int[] {0,1,3,4,5 };
-        else buttonIds = new int[] {2,3,4,5 };
 
-        UploadMenus(0);
-        UploadButtons(buttonIds);
+    void HandleAllMenus()
+    {
+        if (currentMenu == MenuId.None) return;
+
+        menuHandlers[currentMenu]();
+    }
+    void HandleMainMenu()
+    {
+        buttonIds = new int[] { 0, 1, 2, 3, 6};
+
+        LoadMenuAttribs(0);
+        LoadButtonAttribs(buttonIds);
     }
 
-    void PauseMenu()
+    void HandleCampaignMenu()
     {
-        buttonIds = new int[] {6,5 };
+        buttonIds = new int[] { 7 };
 
-        UploadMenus(1);
-        UploadButtons(buttonIds);
+        LoadMenuAttribs(1);
+        LoadButtonAttribs(buttonIds);
     }
 
-    void StatisticsMenu()
+    void HandleCustomsMenu()
     {
-        buttonIds = new int[] {5 };
+        buttonIds = new int[] { 7, 5, 11, 12 };
 
-        UploadMenus(2);
-        UploadButtons(buttonIds);
+        Vector3 mapNameClr = (
+            232f / 255f,
+            225f / 255f,
+            218f / 255f);
+
+        Vector3 descrClr = (
+            96f / 255f,
+            89f / 255f,
+            82f / 255f);
+
+        //Counter
+        LoadTextAttribs(
+            $"{customsCurrentId + 1}/{Level.CustomMaps.Count}",
+            screenHorizontalOffset + (minimumScreenSize / 1.75f),
+            screenVerticalOffset + (minimumScreenSize / 1.3f),
+            2f,
+            new Vector3(mapNameClr)
+        );
+
+        //Author
+        LoadTextAttribs(
+            $"by:{Level.CustomMaps[customsCurrentId].Author}",
+            screenHorizontalOffset + (minimumScreenSize / 2.3f),
+            screenVerticalOffset + (minimumScreenSize / 1.45f),
+            1.5f,
+            new Vector3(mapNameClr)
+        );
+
+        //Created at
+        LoadTextAttribs(
+            $"at:{Level.CustomMaps[customsCurrentId].CreatedAt}",
+            screenHorizontalOffset + (minimumScreenSize / 2.3f),
+            screenVerticalOffset + (minimumScreenSize / 1.85f),
+            1.5f,
+            new Vector3(mapNameClr)
+        );
+
+        //Map name
+        LoadTextAttribs(
+            $"{Level.CustomMaps[customsCurrentId].MapName}",
+            screenHorizontalOffset + (minimumScreenSize / 8.5f),
+            screenVerticalOffset + (minimumScreenSize / 2.5f),
+            2f,
+            new Vector3(mapNameClr)
+        );
+
+        LoadMenuAttribs(2);
+        LoadButtonAttribs(buttonIds);
+    }
+
+    void HandleSettingsMenu()
+    {
+        buttonIds = new int[] { 7 };
+
+        LoadMenuAttribs(3);
+        LoadButtonAttribs(buttonIds);
+    }
+
+    void HandleStatisticsMenu()
+    {
+        buttonIds = new int[] { 7 };
+
+        LoadMenuAttribs(4);
+        LoadButtonAttribs(buttonIds);
 
         Vector3 aliasFontColor = (
-                232f / 255f,
-                225f / 255f,
-                218f / 255f);
+            232f / 255f,
+            225f / 255f,
+            218f / 255f);
 
         Vector3 statFontColor = (
             96f / 255f,
@@ -62,7 +158,7 @@ internal partial class Engine
 
         //Statistics
         //Alias
-        DrawText(
+        LoadTextAttribs(
             $"Recskas",
             screenHorizontalOffset + (minimumScreenSize / 2.72f),
             screenVerticalOffset + (minimumScreenSize / 1.49f),
@@ -71,7 +167,7 @@ internal partial class Engine
         );
 
         //Joined
-        DrawText(
+        LoadTextAttribs(
             $"Joined:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
             screenVerticalOffset + (minimumScreenSize / 1.83f),
@@ -80,7 +176,7 @@ internal partial class Engine
         );
 
         //Joined value
-        DrawText(
+        LoadTextAttribs(
             $"26-03-17",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 1.87f),
@@ -89,7 +185,7 @@ internal partial class Engine
         );
 
         //Time played
-        DrawText(
+        LoadTextAttribs(
             $"Time played:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
             screenVerticalOffset + (minimumScreenSize / 2.1f),
@@ -98,7 +194,7 @@ internal partial class Engine
         );
 
         //Time played value
-        DrawText(
+        LoadTextAttribs(
             $"2h 34m",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 2.16f),
@@ -107,7 +203,7 @@ internal partial class Engine
         );
 
         //Story done
-        DrawText(
+        LoadTextAttribs(
             $"Story done:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
             screenVerticalOffset + (minimumScreenSize / 2.46f),
@@ -116,7 +212,7 @@ internal partial class Engine
         );
 
         //Story done value
-        DrawText(
+        LoadTextAttribs(
             $"True",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 2.55f),
@@ -125,7 +221,7 @@ internal partial class Engine
         );
 
         //Enemy kill
-        DrawText(
+        LoadTextAttribs(
             $"Enemy kill:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
             screenVerticalOffset + (minimumScreenSize / 2.97f),
@@ -134,7 +230,7 @@ internal partial class Engine
         );
 
         //Enemy kill value
-        DrawText(
+        LoadTextAttribs(
             $"120",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 3.1f),
@@ -143,7 +239,7 @@ internal partial class Engine
         );
 
         //Deaths
-        DrawText(
+        LoadTextAttribs(
             $"Deaths:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
             screenVerticalOffset + (minimumScreenSize / 3.75f),
@@ -152,7 +248,7 @@ internal partial class Engine
         );
 
         //Deaths value
-        DrawText(
+        LoadTextAttribs(
             $"2",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 3.9f),
@@ -161,7 +257,7 @@ internal partial class Engine
         );
 
         //Score
-        DrawText(
+        LoadTextAttribs(
             $"Score:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
             screenVerticalOffset + (minimumScreenSize / 5.13f),
@@ -170,7 +266,7 @@ internal partial class Engine
         );
 
         //Score value
-        DrawText(
+        LoadTextAttribs(
             $"1230",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 5.45f),
@@ -179,15 +275,15 @@ internal partial class Engine
         );
     }
 
-    void SettingsMenu()
+    void HandlePauseMenu()
     {
-        buttonIds = new int[] { 5 };
+        buttonIds = new int[] { 8, 9 };
 
-        UploadMenus(3);
-        UploadButtons(buttonIds);
+        LoadMenuAttribs(5);
+        LoadButtonAttribs(buttonIds);
     }
 
-    void UploadMenus(int backgroundIndex)
+    void LoadMenuAttribs(int backgroundIndex)
     {
         // Provide aPos as x1, x2, yTop, yBottom (y1,y2) to match vertex shader
         ShaderHandler.MenusVertexAttribList.AddRange(new float[]

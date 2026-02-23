@@ -1,7 +1,9 @@
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
-namespace Engine;
+using Sources;
+
+namespace Shaders;
 
 internal partial class ShaderHandler
 {
@@ -91,8 +93,7 @@ internal partial class ShaderHandler
         if (instanceCount <=0) return;
 
         //Bind font atlas to unit0 for this pass
-        int fontIndex = Texture.textures.Count -1;
-        Texture.Bind(fontIndex, TextureUnit.Texture0);
+        Textures.BindTex(Textures.Fonts, 0, TextureUnit.Texture0);
 
         TextsShader?.Use();
 

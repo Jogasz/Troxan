@@ -1,19 +1,16 @@
-﻿using System;
-using System.Threading;
+﻿using Engine;
+using Sources;
 
-namespace Engine;
+namespace Root;
 
 public class Program
 {
     static void Main()
     {
-        string filePath;
-
         //Loading settings (More exception handling is needed)
         try
         {
-            filePath = "settings.json";
-            Settings.Load(filePath);
+            Settings.Load("settings.json");
             Console.WriteLine("Settings loaded!");
 
         }
@@ -29,8 +26,9 @@ public class Program
         //Loading needed level infos, NOT LEVELS (More exception handling is needed)
         try
         {
-            filePath = "assets/maps/story/info.txt";
-            Level.FirstLoad(filePath);
+            string storyFilePath = "assets/maps/story/info.txt";
+            string customsRootDir = "assets/maps/customs";
+            Level.FirstLoad(storyFilePath, customsRootDir);
         }
         catch (FileNotFoundException NoFileEx)
         {
@@ -41,99 +39,73 @@ public class Program
             Console.WriteLine($"Level:\n{ex}");
         }
 
-        Level.Load(0, 1);
+        int levelTypeId = 1;
+        int levelMapId = 0;
 
-        //===========================================================================================================
+        Level.Load(levelTypeId, levelMapId);
 
-        Console.WriteLine("===============");
-        Console.WriteLine($"Player starter position: {Level.PlayerStarterPosition}");
-        Console.WriteLine($"Player starter angle: {Level.PlayerStarterAngle}");
-        Console.WriteLine("===============");
+        Console.WriteLine($"Choosen map type: {(levelTypeId == 0 ? "Story" : "Custom")}");
+        Console.WriteLine($"Choosen map: {Level.CustomMaps[levelMapId].MapName}");
 
-        Console.WriteLine();
-
-        Console.WriteLine("===============");
-        Console.WriteLine("MapCeiling:");
+        var m = Level.CustomMaps[levelMapId];
+        Console.WriteLine("================================");
+        Console.WriteLine($"Folder name: '{m.FolderName}'");
+        Console.WriteLine($"Folder path: '{m.FolderPath}'");
+        Console.WriteLine($"Metadata path: '{m.InfosPath}'");
+        Console.WriteLine($"Map Json path: '{m.MapJsonPath}'");
+        Console.WriteLine($"Map Png path: '{m.MapPngPath}'");
+        Console.WriteLine($"Author: '{m.Author}'");
+        Console.WriteLine($"Map name: '{m.MapName}'");
+        Console.WriteLine($"CreatedAt: '{m.CreatedAt}'");
+        Console.WriteLine("================================");
+        Console.WriteLine($"Player Starter Position: {Level.PlayerStarterPosition}");
+        Console.WriteLine($"Player Starter Angle: {Level.PlayerStarterAngle}");
+        Console.WriteLine($"Distance Shade: {Level.DistanceShade}");
+        Console.WriteLine("Map Ceiling Array:");
         for (int i = 0; i < Level.MapCeiling.GetLength(1); i++)
         {
             Console.Write("[");
             for (int j = 0; j < Level.MapCeiling.GetLength(0); j++)
             {
-                Console.Write($"{Level.MapCeiling[i, j]}, ");
+                Console.Write(Level.MapCeiling[i, j]);
             }
-            Console.WriteLine("],");
+            Console.Write("]\n");
         }
-        Console.WriteLine("===============");
-
-        Console.WriteLine();
-
-        Console.WriteLine("===============");
-        Console.WriteLine("MapWalls:");
+        Console.WriteLine("Map Walls Array:");
         for (int i = 0; i < Level.MapWalls.GetLength(1); i++)
         {
             Console.Write("[");
             for (int j = 0; j < Level.MapWalls.GetLength(0); j++)
             {
-                Console.Write($"{Level.MapWalls[i, j]}, ");
+                Console.Write(Level.MapWalls[i, j]);
             }
-            Console.WriteLine("],");
+            Console.Write("]\n");
         }
-        Console.WriteLine("===============");
-
-        Console.WriteLine();
-
-        Console.WriteLine("===============");
-        Console.WriteLine("MapFloor:");
+        Console.WriteLine("Map Floor Array:");
         for (int i = 0; i < Level.MapFloor.GetLength(1); i++)
         {
             Console.Write("[");
             for (int j = 0; j < Level.MapFloor.GetLength(0); j++)
             {
-                Console.Write($"{Level.MapFloor[i, j]}, ");
+                Console.Write(Level.MapFloor[i, j]);
             }
-            Console.WriteLine("],");
+            Console.Write("]\n");
         }
-        Console.WriteLine("===============");
-
-        Console.WriteLine();
-
-        if (Level.Sprites.Count > 0)
+        Console.WriteLine("================================");
+        Console.WriteLine("Sprites: ");
+        foreach (var sp in Level.Sprites)
         {
-            foreach (var sprite in Level.Sprites)
-            {
-                Console.WriteLine("===============");
-                Console.WriteLine($"Type: {sprite.Type}");
-                Console.WriteLine($"Id: {sprite.Id}");
-                Console.WriteLine($"State: {sprite.State}");
-                Console.WriteLine($"Position: {sprite.Position}");
-                if (sprite.Interacted is not null) Console.WriteLine($"Interacted: {sprite.Interacted?.ToString()}");
-                if (sprite.Health is not null) Console.WriteLine($"Health: {sprite.Health?.ToString()}");
-                Console.WriteLine("===============");
-            }
+            Console.WriteLine();
+            Console.WriteLine($"Type: {sp.Type}");
+            Console.WriteLine($"Id: {sp.Id}");
+            Console.WriteLine($"State: {sp.State}");
+            Console.WriteLine($"Position: {sp.Position}");
+            if (sp.Interacted is not null) Console.WriteLine($"Interacted: {sp.Interacted}");
+            if (sp.Health is not null) Console.WriteLine($"Health: {sp.Health}");
         }
+        Console.WriteLine("================================");
 
-        //===========================================================================================================
-
-        //try
-        //{
-        //    Level map = new Level();
-        //    map.Load();
-        //    Console.WriteLine(" - MAP has been loaded!");
-        //}
-        //catch (FileNotFoundException noFileEx)
-        //{
-        //    Console.WriteLine(noFileEx);
-        //}
-        //catch (InvalidOperationException invOpEx)
-        //{
-        //    Console.WriteLine(invOpEx);
-        //}
-        //catch (Exception e)
-        //{
-        //    Console.WriteLine($"Map: Something went wrong...\n - {e}");
-        //}
-
-        //Engine.Engine engine = new Engine.Engine(800, 800, "ProjectRaycast");
-        //engine.Run();
+        Engine.Engine engine = new Engine.Engine(800, 800, "ProjectRaycast");
+        engine.Run();
     }
 }

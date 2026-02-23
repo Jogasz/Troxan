@@ -3,35 +3,72 @@ using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using static OpenTK.Windowing.Common.Input.MouseCursor;
 
+using Shaders;
+using Sources;
+
 namespace Engine;
 
 internal partial class Engine
 {
     /* Buttons ID Translator
-     * 0. Contiune
-     * 1. New Game
-     * 2. Play
-     * 3. Settings
-     * 4. Statistics
-     * 5. Exit
-     * 6. Back to Game
+     * 0. Campaing
+     * 1. Customs
+     * 2. Setings
+     * 3. Statistics
+     * 4. Continue
+     * 5. New Game
+     * 6. Exit
+     * 7. Back
+     * 8. Back to Game
+     * 9. Main Menu
+     * 10. Next Level
+     * 11. 'Left Arrow'
+     * 12. 'Right Arrow'
+     * 13. 'Up Arrow'
+     * 14. 'Down Arrow'
      */
 
     static int[] buttonsWidth = new int[]
     {
-        101,
-        118,
-        64,
-        87,
-        93,
-        64,
-        139
+        114,
+        98,
+        91,
+        102,
+        103,
+        122,
+        57,
+        63,
+        149,
+        128,
+        121,
+        32,
+        32,
+        32,
+        32
     };
 
-    static int originalButtonsHeight = 21;
+    static int originalButtonsHeight = 32;
 
-    const float buttonsAtlasWidth = 417f;
-    const float buttonsAtlasHeight = 147f;
+    const float buttonsAtlasWidth = 447f;
+    const float buttonsAtlasHeight = 480f;
+
+    static int customsCurrentId = 0;
+
+    private void CustomsCurrentIdChanger(int buttonId)
+    {
+        int minLimit = 0;
+        int maxLimit = Level.CustomMaps.Count - 1;
+
+        switch (buttonId)
+        {
+            case 11:
+                if (customsCurrentId != minLimit) customsCurrentId -= 1;
+                break;
+            case 12:
+                if (customsCurrentId != maxLimit) customsCurrentId += 1;
+                break;
+        }
+    }
 
     //Validating hover
     static bool IsPointInQuad(float px, float py, float x1, float x2, float y1, float y2)
@@ -47,76 +84,96 @@ internal partial class Engine
     {
         _menuClickConsumed = true;
 
-        //Main menu buttons
-        if (isInMainMenu)
+        //Main menu
+        if (currentMenu == MenuId.Main)
         {
             switch (id)
             {
-                //Play
+                //Campaign
+                case 0:
+                    currentMenu = MenuId.None;
+                    break;
+                //Customs
+                case 1:
+                    currentMenu = MenuId.Customs;
+                    break;
+                //Settings
                 case 2:
-                    isInMainMenu = false;
-                    CursorState = CursorState.Grabbed;
+                    currentMenu = MenuId.Settings;
                     break;
-
+                //Statistics
                 case 3:
-                    isInMainMenu = false;
-                    isInSettingsMenu = true;
-                    CursorState = CursorState.Normal;
+                    currentMenu = MenuId.Statistics;
                     break;
-
-                case 4:
-                    isInMainMenu = false;
-                    isInStatisticsMenu = true;
-                    CursorState = CursorState.Normal;
-                    break;
-
                 //Exit
-                case 5:
+                case 6:
                     Close();
                     break;
             }
         }
 
-        //Statistics menu buttons
-        if (isInStatisticsMenu)
+        //Campaign menu
+        else if (currentMenu == MenuId.Campaign)
         {
             switch (id)
             {
-                //Exit
-                case 5:
-                    isInMainMenu = true;
-                    isInStatisticsMenu = false;
+                case 7:
+                    currentMenu = MenuId.Main;
                     break;
             }
         }
 
-        //Pause menu buttons
-        if (isInPauseMenu)
+        //Customs menu
+        else if (currentMenu == MenuId.Customs)
         {
             switch (id)
             {
-                //Back to Game
-                case 6:
-                    isInPauseMenu = false;
-                    CursorState = CursorState.Grabbed;
+                //Back
+                case 7:
+                    currentMenu = MenuId.Main;
                     break;
-
-                //Exit
-                case 5:
-                    isInPauseMenu = false;
-                    isInMainMenu = true;
+                //Left arrow
+                case 11:
+                //Right arrow
+                case 12:
+                    CustomsCurrentIdChanger(id);
+                    Console.WriteLine(customsCurrentId);
                     break;
             }
         }
 
-        if (isInSettingsMenu)
+        //Settings menu
+        else if (currentMenu == MenuId.Settings)
         {
             switch (id)
             {
-                //Exit
-                case 5:
-                    isInSettingsMenu = false;
-                    isInMainMenu = true;
+                case 7:
+                    currentMenu = MenuId.Main;
+                    break;
+            }
+        }
+
+        //Statistics menu
+        else if (currentMenu == MenuId.Statistics)
+        {
+            switch (id)
+            {
+                case 7:
+                    currentMenu = MenuId.Main;
+                    break;
+            }
+        }
+
+        //Pause menu
+        else if (currentMenu == MenuId.Pause)
+        {
+            switch (id)
+            {
+                case 8:
+                    currentMenu = MenuId.None;
+                    break;
+                case 9:
+                    currentMenu = MenuId.Main;
                     break;
             }
         }
@@ -128,7 +185,7 @@ internal partial class Engine
     //Previous mouse state tracking
     bool _prevMouseDown;
 
-    void UploadButtons(int[] buttonIds)
+    void LoadButtonAttribs(int[] buttonIds)
     {
         float buttonHeight = minimumScreenSize / 15f;
         float buttonsGap = minimumScreenSize / 100f;
@@ -151,70 +208,6 @@ internal partial class Engine
         //Release debounce
         if (!mouseDown)
             _menuClickConsumed = false;
-
-        // Special handling for statistics menu: a single Exit button centered horizontally,
-        // with its bottom at screenVerticalOffset + minimumScreenSize/100f
-        if (isInStatisticsMenu)
-        {
-            // Expect buttonIds to contain the exit id (5), but guard anyway
-            int id = buttonIds.Length > 0 ? buttonIds[0] : 5;
-
-            float buttonWidth = (buttonHeight / originalButtonsHeight) * buttonsWidth[id];
-
-            float quadX1 = horizontalHalfScreen - buttonWidth / 2f;
-            float quadX2 = horizontalHalfScreen + buttonWidth / 2f;
-
-            float quadYBottom = screenVerticalOffset + (minimumScreenSize / 100f);
-            float quadYTop = quadYBottom + buttonHeight;
-
-            bool isHover = IsPointInQuad(mouseX, mouseY, quadX1, quadX2, quadYBottom, quadYTop);
-            bool isClick = isHover && mouseDown;
-
-            if (isHover) anyHover = true;
-
-            if (anyHover) Cursor = MouseCursor.PointingHand;
-            else Cursor = MouseCursor.Default;
-
-            if (isHover && mouseReleased && !_menuClickConsumed)
-                HandleClickActions(id);
-
-            // V: pick correct row in the sheet
-            float pyTop = id * originalButtonsHeight;
-            float pyBottom = (id + 1) * originalButtonsHeight;
-
-            // X: choose state (Requirement: shift by button's own width)
-            float px0 = 0f;
-            if (isClick) px0 = 2f * buttonsWidth[id];
-            else if (isHover) px0 = 1f * buttonsWidth[id];
-            float px1 = px0 + buttonsWidth[id];
-
-            float u0 = px0 / buttonsAtlasWidth;
-            float u1 = px1 / buttonsAtlasWidth;
-
-            float vTop = 1f - (pyTop / buttonsAtlasHeight);
-            float vBottom = 1f - (pyBottom / buttonsAtlasHeight);
-
-            // statistics menu: flipped vertically relative to normal
-            float v0 = vTop;
-            float v1 = vBottom;
-
-            ShaderHandler.ButtonsVertexAttribList.AddRange(new float[]
-            {
-                quadX1,
-                quadX2,
-                quadYBottom,
-                quadYTop,
-                id,
-                u0,
-                v0,
-                u1,
-                v1
-            });
-
-            //Update previous mouse state and return
-            _prevMouseDown = mouseDown;
-            return;
-        }
 
         // Normal menu behavior: multiple buttons stacked vertically centered
         for (int i = 0; i < buttonIds.Length; i++)

@@ -1,7 +1,9 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
-namespace Engine;
+using Sources;
+
+namespace Shaders;
 
 internal partial class ShaderHandler
 {
@@ -246,10 +248,12 @@ internal partial class ShaderHandler
     public static void LoadBufferAndClear()
     {
         LoadBufferAndClearWindow();
-        LoadBufferAndClearCeiling();
         LoadBufferAndClearWall();
+        LoadBufferAndClearCeiling();
         LoadBufferAndClearFloor();
         LoadBufferAndClearSprite();
+        LoadBufferAndClearMenus();
+        LoadBufferAndClearButtons();
         LoadBufferAndClearTexts();
     }
 
@@ -260,61 +264,12 @@ internal partial class ShaderHandler
         float playerAngle,
         float pitch)
     {
-        /*
-         * Texture binding
-         * ===============
-         *0. Map Ceiling Array Text
-         *1. Map Walls Array Text
-         *2. Map Floor Array Text
-         * -------------------------3
-         *3. Planks
-         *4. Mossy Planks
-         *5. Stonebricks
-         *6. Mossy Stonebricks
-         *7. Door Stonebricks
-         *8. Door Mossy Stonebricks
-         *9. Window Stonebricks
-         *10. Window Mossy Stonebricks
-         * ----------------------------8
-         * Sprite textures (separate binding)
-         */
+        int walltexCount = Textures.Walls.Count;
 
-        //Bindig textures
-        //===========================================================================
- //0.
-        GL.ActiveTexture(TextureUnit.Texture0);
-        GL.BindTexture(TextureTarget.Texture2D, Texture.mapCeilingTex);
- //1.
-        GL.ActiveTexture(TextureUnit.Texture1);
-        GL.BindTexture(TextureTarget.Texture2D, Texture.mapWallsTex);
- //2.
-        GL.ActiveTexture(TextureUnit.Texture2);
-        GL.BindTexture(TextureTarget.Texture2D, Texture.mapFloorTex);
-
- //3. -N
-        for (int i =0; i < Texture.textures.Count; i++)
-        {
-            Texture.Bind(i, TextureUnit.Texture3 + i);
-        }
-        //===========================================================================
-
-        int tileCount = Texture.textures.Count;
-
-        DrawWindow();
-        DrawCeiling(tileCount, wallWidth, playerPosition, playerAngle, pitch);
-        DrawWalls(tileCount, pitch);
-        DrawFloor(tileCount, wallWidth, playerPosition, playerAngle, pitch);
-
-        //Objects atlas
-        Texture.BindSprite(0, TextureUnit.Texture0);
-        //Items atlas
-        Texture.BindSprite(1, TextureUnit.Texture1);
-        //Enemies atlas
-        Texture.BindSprite(2, TextureUnit.Texture2);
-
+        DrawCeiling(walltexCount, wallWidth, playerPosition, playerAngle, pitch);
+        DrawWalls(walltexCount, pitch);
+        DrawFloor(walltexCount, wallWidth, playerPosition, playerAngle, pitch);
         DrawSprite();
-
-        //Text overlay (draw last so it's on top of everything)
         DrawTexts();
     }
 
@@ -329,7 +284,6 @@ internal partial class ShaderHandler
         SpriteShader?.Dispose();
         MenusShader?.Dispose();
         ButtonsShader?.Dispose();
-
         TextsShader?.Dispose();
     }
 }

@@ -5,7 +5,9 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using StbImageSharp;
 
-internal sealed class Texture : IDisposable
+namespace Sources;
+
+internal sealed class Textures : IDisposable
 {
     public int Handle { get; }
 
@@ -37,84 +39,87 @@ internal sealed class Texture : IDisposable
 
     static readonly string[] containerPaths =
     {
-
+        //Main menu
+        "assets/textures/gui/containers/main.png",
+        //Campaign menu
+        "assets/textures/gui/containers/campaign.png",
+        //Customs menu
+        "assets/textures/gui/containers/customs.png",
+        //Settings menu
+        "assets/textures/gui/containers/settings.png",
+        //Statistics menu
+        "assets/textures/gui/containers/statistics.png",
+        //Pause menu
+        "assets/textures/gui/containers/pause.png",
+        //Level completed menu
+        //"assets/textures/gui/containers/mainmenu.png",
     };
 
-    static readonly string[] HUDPaths =
+    //static readonly string[] HUDPaths =
+    //{
+
+    //};
+
+    static readonly string[] buttonPaths =
     {
-
+        "assets/textures/gui/buttons_atlas.png"
     };
 
-    static readonly string[] buttonsPath =
+    static readonly string[] fontPaths =
     {
-
+        "assets/textures/gui/web_ibm_mda_atlas.png"
     };
 
-    static readonly string[] fontPath =
+    //Texture lists
+    public static List<Textures> Walls = new();
+    public static List<Textures> Sprites = new();
+    public static List<Textures> Containers = new();
+    //public static List<Textures> HUD = new();
+    public static List<Textures> Buttons = new();
+    public static List<Textures> Fonts = new();
+
+    //Map textures (R32i)
+    public static int MapCeilingTex { get; private set; }
+    public static int MapFloorTex { get; private set; }
+    public static int MapWallsTex { get; private set; }
+    public static Vector2i MapSize { get; private set; }
+
+    public static void LoadMapTextures(int[,] mapWalls, int[,] mapCeiling, int[,] mapFloor)
     {
+        if (MapCeilingTex != 0) GL.DeleteTexture(MapCeilingTex);
+        if (MapFloorTex != 0) GL.DeleteTexture(MapFloorTex);
+        if (MapWallsTex != 0) GL.DeleteTexture(MapWallsTex);
 
-    };
+        MapCeilingTex = CreateMapTexture(mapCeiling);
+        MapWallsTex = CreateMapTexture(mapWalls);
+        MapFloorTex = CreateMapTexture(mapFloor);
 
-    public static List<Texture?> textures = new();
-    public static List<Texture?> images = new();
-    public static List<Texture?> sprites = new();
-
-    // Map textures (R32i)
-    public static int mapCeilingTex { get; private set; }
-    public static int mapFloorTex { get; private set; }
-    public static int mapWallsTex { get; private set; }
-    public static Vector2i mapSize { get; private set; }
+        MapSize = (mapWalls.GetLength(1), mapWalls.GetLength(0));
+    }
 
     public static void LoadAll(int[,] mapWalls, int[,] mapCeiling, int[,] mapFloor)
     {
-        // If LoadAll can be called more than once, make sure we release the old GPU resources.
-        if (mapCeilingTex !=0) GL.DeleteTexture(mapCeilingTex);
-        if (mapFloorTex !=0) GL.DeleteTexture(mapFloorTex);
-        if (mapWallsTex !=0) GL.DeleteTexture(mapWallsTex);
+        LoadMapTextures(mapWalls, mapCeiling, mapFloor);
 
-        textures.Clear();
-        images.Clear();
-        sprites.Clear();
+        if (Walls.Count != 0) Walls.Clear();
+        if (Sprites.Count != 0) Sprites.Clear();
+        if (Containers.Count != 0) Containers.Clear();
+        //if (HUD.Count != 0) HUD.Clear();
+        if (Buttons.Count != 0) Buttons.Clear();
+        if (Fonts.Count != 0) Fonts.Clear();
 
-        try
-        {
-            mapCeilingTex = CreateMapTexture(mapCeiling);
-            mapFloorTex = CreateMapTexture(mapFloor);
-            mapWallsTex = CreateMapTexture(mapWalls);
-
-            mapSize = (mapWalls.GetLength(1), mapWalls.GetLength(0));
-
-            //LoadInto(textures, texturePaths);
-            //LoadInto(images, imagePaths);
-            //LoadInto(sprites, spritePaths);
-
-            // Ensure the font atlas (last texture in textures list) does not repeat UVs.
-            // The font atlas is appended as the last entry in texturePaths above.
-            if (textures.Count >0)
-            {
-                int fontIdx = textures.Count -1;
-                Texture? fontTex = textures[fontIdx];
-                if (fontTex != null)
-                {
-                    GL.BindTexture(TextureTarget.Texture2D, fontTex.Handle);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-                    GL.BindTexture(TextureTarget.Texture2D,0);
-                }
-            }
-
-            Console.WriteLine(" - TEXTURES have been loaded!");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($" - Something went wrong while loading TEXTURES...\n{ex}");
-        }
+        LoadInto(Walls, wallPaths);
+        LoadInto(Sprites, spritePaths);
+        LoadInto(Containers, containerPaths);
+        //LoadInto(HUD, hudPaths);
+        LoadInto(Buttons, buttonPaths);
+        LoadInto(Fonts, fontPaths);
     }
 
-    static void LoadInto(List<Texture?> target, IReadOnlyList<string> paths)
+    static void LoadInto(List<Textures> texList, IReadOnlyList<string> paths)
     {
         for (int i =0; i < paths.Count; i++)
-            target.Add(new Texture(paths[i]));
+            texList.Add(new Textures(paths[i]));
     }
 
     static int CreateMapTexture(int[,] map)
@@ -149,16 +154,16 @@ internal sealed class Texture : IDisposable
         return handle;
     }
 
-    static void BindFrom(List<Texture?> list, int index, TextureUnit unit)
+    public static void BindTex(List<Textures> texList, int texIndex, TextureUnit unit)
     {
-        if (index <0 || index >= list.Count)
+        if (texIndex < 0 || texIndex >= texList.Count)
         {
             GL.ActiveTexture(unit);
             GL.BindTexture(TextureTarget.Texture2D,0);
             return;
         }
 
-        Texture? texture = list[index];
+        Textures texture = texList[texIndex];
         if (texture is null)
         {
             GL.ActiveTexture(unit);
@@ -169,15 +174,7 @@ internal sealed class Texture : IDisposable
         texture.Use(unit);
     }
 
-    public static void BindTexture(int textureIndex, TextureUnit unit = TextureUnit.Texture0) => BindFrom(textures, textureIndex, unit);
-
-    public static void BindImage(int imageIndex, TextureUnit unit = TextureUnit.Texture0) => BindFrom(images, imageIndex, unit);
-
-    public static void BindSprite(int spriteIndex, TextureUnit unit = TextureUnit.Texture0) => BindFrom(sprites, spriteIndex, unit);
-
-    public static void Bind(int textureIndex, TextureUnit unit = TextureUnit.Texture0) => BindTexture(textureIndex, unit);
-
-    public Texture(string path)
+    public Textures(string path)
     {
         Handle = GL.GenTexture();
         Use();

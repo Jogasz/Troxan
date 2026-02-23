@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-namespace Engine;
-
+namespace Sources;
 internal class Settings
 {
     internal static class Player

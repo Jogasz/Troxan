@@ -1,5 +1,7 @@
 ﻿using OpenTK.Mathematics;
 
+using Shaders;
+
 namespace Engine;
 
 internal partial class Engine
@@ -14,7 +16,7 @@ internal partial class Engine
 
     // DrawText now accepts a fontSize parameter (monospaced cells are27x37 in atlas).
     // fontSize is a multiplier; final glyph size also scales with minimumScreenSize so text adapts to window size.
-    void DrawText(string text, float x, float y, float fontSize, Vector3 color)
+    void LoadTextAttribs(string text, float x, float y, float fontSize, Vector3 color)
     {
         //Monospaced: each glyph is a fixed-width cell in a single row.
         float atlasW = fontAtlas.X;

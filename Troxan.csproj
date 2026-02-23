@@ -29,6 +29,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="assets\maps\customs\Daydream\map.json" />
+    <None Remove="assets\maps\customs\Daydream\map.png" />
+    <None Remove="assets\maps\customs\Daydream\metadata.json" />
+    <None Remove="assets\maps\customs\No_Way_Out\map.json" />
+    <None Remove="assets\maps\customs\No_Way_Out\map.png" />
+    <None Remove="assets\maps\customs\No_Way_Out\metadata.json" />
+    <None Remove="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\map.json" />
+    <None Remove="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\map.png" />
+    <None Remove="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\metadata.json" />
     <None Remove="assets\maps\map01.json" />
     <None Remove="assets\maps\story\01.json" />
     <None Remove="assets\maps\story\02.json" />
@@ -44,10 +53,15 @@
     <None Remove="assets\textures\door_stonebricks.png" />
     <None Remove="assets\textures\door_stonebricks.txt" />
     <None Remove="assets\textures\floorTest.txt" />
-    <None Remove="assets\textures\gui\buttons_sheet.png" />
+    <None Remove="assets\textures\gui\containers\campaign.png" />
+    <None Remove="assets\textures\gui\containers\customs.png" />
+    <None Remove="assets\textures\gui\containers\main.png" />
     <None Remove="assets\textures\gui\containers\mainmenu.png" />
+    <None Remove="assets\textures\gui\containers\pause.png" />
     <None Remove="assets\textures\gui\containers\pausemenu.png" />
+    <None Remove="assets\textures\gui\containers\settings.png" />
     <None Remove="assets\textures\gui\containers\settingsmenu.png" />
+    <None Remove="assets\textures\gui\containers\statistics.png" />
     <None Remove="assets\textures\gui\containers\statisticsmenu.png" />
     <None Remove="assets\textures\gui\hudTex\container.png" />
     <None Remove="assets\textures\gui\hudTex\running_effect.png" />
@@ -56,10 +70,15 @@
     <None Remove="assets\textures\gui\mainmenu.png" />
     <None Remove="assets\textures\gui\pausemenu.png" />
     <None Remove="assets\textures\gui\web_ibm_mda_atlas.png" />
+    <None Remove="assets\textures\map\door.png" />
+    <None Remove="assets\textures\map\planks.png" />
     <None Remove="assets\textures\map\sprites\enemies_atlas.png" />
     <None Remove="assets\textures\map\sprites\items_atlas.png" />
     <None Remove="assets\textures\map\sprites\objects_atlas.png" />
     <None Remove="assets\textures\map\sprites\projectile.png" />
+    <None Remove="assets\textures\map\sprites\projectiles_atlas.png" />
+    <None Remove="assets\textures\map\stonebricks.png" />
+    <None Remove="assets\textures\map\window.png" />
     <None Remove="assets\textures\missing.txt" />
     <None Remove="assets\textures\mossy_bricks.txt" />
     <None Remove="assets\textures\mossy_planks.png" />
@@ -106,6 +125,33 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="assets\maps\customs\Daydream\map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Daydream\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Daydream\metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\No_Way_Out\map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\No_Way_Out\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\No_Way_Out\metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="assets\maps\story\1.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -118,19 +164,25 @@
     <Content Include="assets\maps\story\info.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\textures\gui\buttons_sheet.png">
+    <Content Include="assets\textures\gui\buttons_atlas.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\textures\gui\containers\mainmenu.png">
+    <Content Include="assets\textures\gui\containers\campaign.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\textures\gui\containers\pausemenu.png">
+    <Content Include="assets\textures\gui\containers\customs.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\textures\gui\containers\settingsmenu.png">
+    <Content Include="assets\textures\gui\containers\main.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\textures\gui\containers\statisticsmenu.png">
+    <Content Include="assets\textures\gui\containers\pause.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\gui\containers\settings.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\gui\containers\statistics.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\textures\gui\hudTex\container.png">
@@ -148,6 +200,12 @@
     <Content Include="assets\textures\gui\web_ibm_mda_atlas.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="assets\textures\map\door.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\map\planks.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="assets\textures\map\sprites\enemies_atlas.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -155,6 +213,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\textures\map\sprites\objects_atlas.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\map\sprites\projectiles_atlas.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\map\stonebricks.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\map\window.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\user\user.png">

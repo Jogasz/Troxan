@@ -1,7 +1,9 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
-namespace Engine;
+using Sources;
+
+namespace Shaders;
 
 internal partial class ShaderHandler
 {
@@ -97,11 +99,17 @@ internal partial class ShaderHandler
         int tileCount,
         float pitch)
     {
+        //Binding wall textures
+        for (int i = 0; i < Textures.Walls.Count; i++)
+        {
+            Textures.BindTex(Textures.Walls, i, TextureUnit.Texture0 + i);
+        }
+
         WallShader?.Use();
 
         for (int i = 0; i < tileCount; i++)
         {
-            WallShader?.SetInt($"uTextures[{i}]", 3 + i);
+            WallShader?.SetInt($"uTextures[{i}]", i);
         }
 
         WallShader?.SetFloat("uPitch", pitch);

@@ -1,7 +1,9 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
-namespace Engine;
+using Sources;
+
+namespace Shaders;
 
 internal partial class ShaderHandler
 {
@@ -91,12 +93,18 @@ internal partial class ShaderHandler
     {
         FloorShader?.Use();
 
-        for (int i = 0; i < tileCount; i++)
-        {
-            FloorShader?.SetInt($"uTextures[{i}]", 3 + i);
-        }
+        //Binding map array's ceiling layer to Texture0
+        //MapCeiling
+        GL.ActiveTexture(TextureUnit.Texture0);
+        GL.BindTexture(TextureTarget.Texture2D, Textures.MapFloorTex);
+        FloorShader?.SetInt("uMapFloor", 0);
 
-        FloorShader?.SetInt("uMapFloor", 2);
+        //Binding wall textures from Texture1
+        for (int i = 0; i < Textures.Walls.Count; i++)
+        {
+            Textures.BindTex(Textures.Walls, i, TextureUnit.Texture1 + i);
+            FloorShader?.SetInt($"uTextures[{i}]", i + 1);
+        }
 
         FloorShader?.SetVector2("uMapSize", new Vector2(Level.MapFloor.GetLength(1), Level.MapFloor.GetLength(0)));
         FloorShader?.SetFloat("uStepSize", wallWidth);
