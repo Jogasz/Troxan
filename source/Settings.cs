@@ -10,8 +10,8 @@ internal class Settings
     {
         internal static int Health { get; set; }
         internal static int Stamina { get; set; }
-        internal static int MovementSpeed { get; set; }
-        internal static int MouseSensitivity { get; set; }
+        internal static float MovementSpeed { get; set; }
+        internal static float MouseSensitivity { get; set; }
     }
 
     internal static class Graphics
@@ -19,7 +19,7 @@ internal class Settings
         internal static int FOV { get; set; }
         internal static int RayCount { get; set; }
         internal static int RenderDistance { get; set; }
-        internal static int DistanceShade { get; set; }
+        internal static float DistanceShade { get; set; }
     }
 
     internal static class Gameplay
@@ -47,14 +47,14 @@ internal class Settings
         //Loading player values
         Player.Health = playerObj.GetProperty("Health").GetInt32();
         Player.Stamina = playerObj.GetProperty("Stamina").GetInt32();
-        Player.MovementSpeed = playerObj.GetProperty("MovementSpeed").GetInt32();
-        Player.MouseSensitivity = playerObj.GetProperty("MouseSensitivity").GetInt32();
+        Player.MovementSpeed = playerObj.GetProperty("MovementSpeed").GetInt32() * 10f;
+        Player.MouseSensitivity = playerObj.GetProperty("MouseSensitivity").GetInt32() / 1000f;
 
         //Loading graphics values
         Graphics.FOV = graphicsObj.GetProperty("FOV").GetInt32();
         Graphics.RayCount = graphicsObj.GetProperty("RayCount").GetInt32();
         Graphics.RenderDistance = graphicsObj.GetProperty("RenderDistance").GetInt32();
-        Graphics.DistanceShade = graphicsObj.GetProperty("DistanceShade").GetInt32();
+        Graphics.DistanceShade = graphicsObj.GetProperty("DistanceShade").GetInt32() / 10f;
 
         //Loading gameplay values
         Gameplay.TileSize = gameplayObj.GetProperty("TileSize").GetInt32();

@@ -79,7 +79,7 @@ internal partial class Engine
 
     void HandleCustomsMenu()
     {
-        buttonIds = new int[] { 7, 5, 11, 12 };
+        buttonIds = new int[] { 15, 7, 11, 12 };
 
         Vector3 mapNameClr = (
             232f / 255f,

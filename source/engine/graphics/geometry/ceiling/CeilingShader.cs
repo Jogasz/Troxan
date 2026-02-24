@@ -81,9 +81,11 @@ internal partial class ShaderHandler
         float playerAngle,
         float pitch)
     {
+        if (Textures.MapCeilingTex == 0 || Textures.MapSize.X == 0 || Textures.MapSize.Y == 0)
+            return;
+
         CeilingShader?.Use();
 
-        //Binding map array's ceiling layer to Texture0
         //MapCeiling
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, Textures.MapCeilingTex);
@@ -96,7 +98,8 @@ internal partial class ShaderHandler
             CeilingShader?.SetInt($"uTextures[{i}]", i + 1);
         }
 
-        CeilingShader?.SetVector2("uMapSize", new Vector2(Level.MapCeiling.GetLength(1), Level.MapCeiling.GetLength(0)));
+        // IMPORTANT: use the GPU map size (matches the integer textures)
+        CeilingShader?.SetVector2("uMapSize", new Vector2(Textures.MapSize.X, Textures.MapSize.Y));
         CeilingShader?.SetFloat("uStepSize", wallWidth);
         CeilingShader?.SetVector2("uPlayerPos", new Vector2(playerPosition.X, playerPosition.Y));
         CeilingShader?.SetFloat("uPlayerAngle", playerAngle);

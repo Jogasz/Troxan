@@ -1,0 +1,9 @@
+{
+  "Player": {
+    "MouseSensitivity": 2
+  },
+  "Graphics": {
+    "RayCount": 1000,
+    "RenderDistance": 10
+  }
+}

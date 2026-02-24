@@ -26,6 +26,7 @@ internal partial class Engine
      * 12. 'Right Arrow'
      * 13. 'Up Arrow'
      * 14. 'Down Arrow'
+     * 15. Play
      */
 
     static int[] buttonsWidth = new int[]
@@ -44,13 +45,14 @@ internal partial class Engine
         32,
         32,
         32,
-        32
+        32,
+        58
     };
 
     static int originalButtonsHeight = 32;
 
     const float buttonsAtlasWidth = 447f;
-    const float buttonsAtlasHeight = 480f;
+    const float buttonsAtlasHeight = 512f;
 
     static int customsCurrentId = 0;
 
@@ -91,7 +93,7 @@ internal partial class Engine
             {
                 //Campaign
                 case 0:
-                    currentMenu = MenuId.None;
+                    if (Level.mapLoaded) currentMenu = MenuId.None;
                     break;
                 //Customs
                 case 1:
@@ -128,6 +130,16 @@ internal partial class Engine
         {
             switch (id)
             {
+                //Play selected map
+                case 15:
+                    Level.Load(1, customsCurrentId);
+
+                    if (!Level.mapLoaded)
+                        break;
+
+                    ApplyLevel();
+                    currentMenu = MenuId.None;
+                    break;
                 //Back
                 case 7:
                     currentMenu = MenuId.Main;
@@ -137,7 +149,6 @@ internal partial class Engine
                 //Right arrow
                 case 12:
                     CustomsCurrentIdChanger(id);
-                    Console.WriteLine(customsCurrentId);
                     break;
             }
         }
@@ -147,6 +158,7 @@ internal partial class Engine
         {
             switch (id)
             {
+                //Back
                 case 7:
                     currentMenu = MenuId.Main;
                     break;
@@ -158,6 +170,7 @@ internal partial class Engine
         {
             switch (id)
             {
+                //Back
                 case 7:
                     currentMenu = MenuId.Main;
                     break;
@@ -169,11 +182,14 @@ internal partial class Engine
         {
             switch (id)
             {
+                //Back to game
                 case 8:
                     currentMenu = MenuId.None;
                     break;
+                //Main Menu
                 case 9:
                     currentMenu = MenuId.Main;
+                    Level.ClearLevelDatas();
                     break;
             }
         }

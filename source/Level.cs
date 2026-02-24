@@ -12,6 +12,7 @@ internal class Level
     //First loading
     //Custom map metadatas / Story map's completed status
     //=========================================================================================
+    internal static bool mapLoaded = false;
     internal static bool[] levelFinished = Array.Empty<bool>();
 
     //Custom level metadata
@@ -158,6 +159,67 @@ internal class Level
         //==========================================================================
         else if (typeId == 1) LoadCustomMap(mapId);
         //==========================================================================
+
+        //Console.WriteLine($"Choosen map type: {(typeId == 0 ? "Story" : "Custom")}");
+        //Console.WriteLine($"Choosen map: {Level.CustomMaps[mapId].MapName}");
+
+        //var m = Level.CustomMaps[mapId];
+        //Console.WriteLine("================================");
+        //Console.WriteLine($"Folder name: '{m.FolderName}'");
+        //Console.WriteLine($"Folder path: '{m.FolderPath}'");
+        //Console.WriteLine($"Metadata path: '{m.InfosPath}'");
+        //Console.WriteLine($"Map Json path: '{m.MapJsonPath}'");
+        //Console.WriteLine($"Map Png path: '{m.MapPngPath}'");
+        //Console.WriteLine($"Author: '{m.Author}'");
+        //Console.WriteLine($"Map name: '{m.MapName}'");
+        //Console.WriteLine($"CreatedAt: '{m.CreatedAt}'");
+        //Console.WriteLine("================================");
+        //Console.WriteLine($"Player Starter Position: {Level.PlayerStarterPosition}");
+        //Console.WriteLine($"Player Starter Angle: {Level.PlayerStarterAngle}");
+        //Console.WriteLine($"Distance Shade: {Level.DistanceShade}");
+        //Console.WriteLine("Map Ceiling Array:");
+        //for (int i = 0; i < Level.MapCeiling.GetLength(1); i++)
+        //{
+        //    Console.Write("[");
+        //    for (int j = 0; j < Level.MapCeiling.GetLength(0); j++)
+        //    {
+        //        Console.Write(Level.MapCeiling[i, j]);
+        //    }
+        //    Console.Write("]\n");
+        //}
+        //Console.WriteLine("Map Walls Array:");
+        //for (int i = 0; i < Level.MapWalls.GetLength(1); i++)
+        //{
+        //    Console.Write("[");
+        //    for (int j = 0; j < Level.MapWalls.GetLength(0); j++)
+        //    {
+        //        Console.Write(Level.MapWalls[i, j]);
+        //    }
+        //    Console.Write("]\n");
+        //}
+        //Console.WriteLine("Map Floor Array:");
+        //for (int i = 0; i < Level.MapFloor.GetLength(1); i++)
+        //{
+        //    Console.Write("[");
+        //    for (int j = 0; j < Level.MapFloor.GetLength(0); j++)
+        //    {
+        //        Console.Write(Level.MapFloor[i, j]);
+        //    }
+        //    Console.Write("]\n");
+        //}
+        //Console.WriteLine("================================");
+        //Console.WriteLine("Sprites: ");
+        //foreach (var sp in Level.Sprites)
+        //{
+        //    Console.WriteLine();
+        //    Console.WriteLine($"Type: {sp.Type}");
+        //    Console.WriteLine($"Id: {sp.Id}");
+        //    Console.WriteLine($"State: {sp.State}");
+        //    Console.WriteLine($"Position: {sp.Position}");
+        //    if (sp.Interacted is not null) Console.WriteLine($"Interacted: {sp.Interacted}");
+        //    if (sp.Health is not null) Console.WriteLine($"Health: {sp.Health}");
+        //}
+        //Console.WriteLine("================================");
     }
 
     private static void LoadCustomMap(int mapId)
@@ -218,6 +280,12 @@ internal class Level
 
             Sprites.Add(dst);
         }
+        mapLoaded = true;
+    }
+
+    public static void ClearLevelDatas()
+    {
+        mapLoaded = false;
     }
 
     //=========================================================================================

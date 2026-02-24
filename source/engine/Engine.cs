@@ -4,11 +4,11 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Diagnostics;
-
 using Root;
-using Sources;
 using Shaders;
+using Sources;
+using StbImageSharp;
+using System.Diagnostics;
 
 namespace Engine;
 
@@ -20,13 +20,13 @@ internal partial class Engine : GameWindow
     int FOV = Settings.Graphics.FOV;
     int rayCount { get; set; } = Settings.Graphics.RayCount;
     int renderDistance = Settings.Graphics.RenderDistance;
-    float distanceShade = Settings.Graphics.DistanceShade / 10f;
+    float distanceShade = Settings.Graphics.DistanceShade;
     int tileSize = Settings.Gameplay.TileSize;
     int[,] mapCeiling = Level.MapCeiling;
     int[,] mapFloor = Level.MapFloor;
     int[,] mapWalls = Level.MapWalls;
-    float playerMovementSpeed = Settings.Player.MovementSpeed * 10f;
-    float mouseSensitivity = Settings.Player.MouseSensitivity / 1000f;
+    float playerMovementSpeed = Settings.Player.MovementSpeed;
+    float mouseSensitivity = Settings.Player.MouseSensitivity;
 
     //DeltaTime
     float deltaTime { get; set; }
@@ -35,8 +35,8 @@ internal partial class Engine : GameWindow
     //Player variables
     Vector2 playerPosition { get; set; }
     float playerAngle { get; set; }
-    const float playerCollisionRadius = 10f;
-    float pitch { get; set; } = 0f;
+    const float playerCollisionRadius =10f;
+    float pitch { get; set; } =0f;
 
     //Bools for menus
     enum MenuId
@@ -53,7 +53,8 @@ internal partial class Engine : GameWindow
 
     MenuId currentMenu = MenuId.Main;
 
-    internal bool isInGame => currentMenu == MenuId.None;
+    // Do not enter game until a map is actually loaded
+    internal bool isInGame => currentMenu == MenuId.None && Level.mapLoaded;
 
     //Engine
     Stopwatch stopwatch { get; set; } = new Stopwatch();
@@ -65,9 +66,9 @@ internal partial class Engine : GameWindow
     float screenHorizontalOffset { get; set; }
 
     // FPS display that updates once per second
-    int displayedFPS = 0;
-    float fpsSecondTimer = 0f;
-    int fpsFrameCounter = 0;
+    int displayedFPS =0;
+    float fpsSecondTimer =0f;
+    int fpsFrameCounter =0;
 
     //=============================================================================================
     public Engine(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings()
@@ -77,9 +78,51 @@ internal partial class Engine : GameWindow
 
         //WindowState = WindowState.Fullscreen,
         WindowBorder = WindowBorder.Resizable,
+
+        Icon = LoadWindowIcon("assets/icon.png"),
     })
     {
         VSync = VSyncMode.On;
+    }
+
+    private static WindowIcon? LoadWindowIcon(string path)
+    {
+        if (!File.Exists(path))
+            return null;
+
+        using var stream = File.OpenRead(path);
+        var img = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+
+        // OpenTK expects RGBA bytes
+        var image = new OpenTK.Windowing.Common.Input.Image(img.Width, img.Height, img.Data);
+        return new WindowIcon(image);
+    }
+
+    public void ApplyLevel()
+    {
+        // Copy level state into engine runtime
+        playerPosition = (
+            Level.PlayerStarterPosition.X * tileSize + (tileSize /2f),
+            Level.PlayerStarterPosition.Y * tileSize + (tileSize /2f));
+
+        playerAngle = MathHelper.DegreesToRadians(Level.PlayerStarterAngle);
+        //distanceShade = Level.DistanceShade / 10f;
+
+        mapCeiling = Level.MapCeiling;
+        mapWalls = Level.MapWalls;
+        mapFloor = Level.MapFloor;
+
+        pitch =0f;
+
+        // Depends on map size
+        renderDistance = Math.Min(
+            Settings.Graphics.RenderDistance,
+            Math.Max(mapWalls.GetLength(0), mapWalls.GetLength(1)));
+
+        // Upload new integer maps to GPU
+        Textures.LoadMapTextures(mapWalls, mapCeiling, mapFloor);
+
+        Console.WriteLine($"MapTextures: C={Textures.MapCeilingTex} W={Textures.MapWallsTex} F={Textures.MapFloorTex} Size={Textures.MapSize}");
     }
 
     protected override void OnLoad()
@@ -87,14 +130,6 @@ internal partial class Engine : GameWindow
         base.OnLoad();
 
         InitMenuHandlers();
-        playerPosition = (
-            Level.PlayerStarterPosition.X * tileSize + (tileSize / 2f),
-            Level.PlayerStarterPosition.Y * tileSize + (tileSize / 2f));
-        playerAngle = MathHelper.DegreesToRadians(Level.PlayerStarterAngle);
-        distanceShade = Level.DistanceShade;
-        mapCeiling = Level.MapCeiling;
-        mapWalls = Level.MapWalls;
-        mapFloor = Level.MapFloor;
 
         //Viewport
         Utils.SetViewport(ClientSize.X, ClientSize.Y);
@@ -103,17 +138,14 @@ internal partial class Engine : GameWindow
         minimumScreenSize = ClientSize.Y > ClientSize.X ? ClientSize.X : ClientSize.Y;
 
         //Offsets to center allowed screen
-        screenHorizontalOffset = ClientSize.X > ClientSize.Y ? ((ClientSize.X - minimumScreenSize) / 2) : 0;
-        screenVerticalOffset = ClientSize.Y > ClientSize.X ? ((ClientSize.Y - minimumScreenSize) / 2) : 0;
+        screenHorizontalOffset = ClientSize.X > ClientSize.Y ? ((ClientSize.X - minimumScreenSize) /2) :0;
+        screenVerticalOffset = ClientSize.Y > ClientSize.X ? ((ClientSize.Y - minimumScreenSize) /2) :0;
 
-        //Render distance limiter
-        renderDistance = Math.Min(renderDistance, Math.Max(mapWalls.GetLength(0), mapWalls.GetLength(1)));
-
-        //Loading textures
+        //Loading textures (static atlases ONLY; map textures are created when user selects a map)
         try
         {
-            Textures.LoadAll(mapWalls, mapCeiling, mapFloor);
-            Console.WriteLine("Textures loaded!");
+            Textures.LoadStatic();
+            Console.WriteLine("Static textures loaded!");
         }
         catch (FileNotFoundException noFileEx)
         {
@@ -152,7 +184,7 @@ internal partial class Engine : GameWindow
 
         stopwatch.Start();
     }
-    
+
     protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
     {
         base.OnFramebufferResize(e);
@@ -164,9 +196,9 @@ internal partial class Engine : GameWindow
         minimumScreenSize = ClientSize.Y > ClientSize.X ? ClientSize.X : ClientSize.Y;
 
         //Offsets to center allowed screen
-        screenHorizontalOffset = ClientSize.X > ClientSize.Y ? ((ClientSize.X - minimumScreenSize) / 2) : 0;
-        screenVerticalOffset = ClientSize.Y > ClientSize.X ? ((ClientSize.Y - minimumScreenSize) / 2) : 0;
-        
+        screenHorizontalOffset = ClientSize.X > ClientSize.Y ? ((ClientSize.X - minimumScreenSize) /2) :0;
+        screenVerticalOffset = ClientSize.Y > ClientSize.X ? ((ClientSize.Y - minimumScreenSize) /2) :0;
+
         //Updating ALL shader uniforms
         ShaderHandler.UpdateUniforms(
             ClientSize,
@@ -206,35 +238,30 @@ internal partial class Engine : GameWindow
         //Game
         //=========================================================================================
         CursorState = CursorState.Grabbed;
-        
+
         //Per - second FPS measurement for display
         fpsFrameCounter++;
         fpsSecondTimer += deltaTime;
-        if (fpsSecondTimer >= 1.0f)
+        if (fpsSecondTimer >=1.0f)
         {
             //captured frames in the last ~1s
             displayedFPS = fpsFrameCounter;
-            fpsFrameCounter = 0;
-            fpsSecondTimer -= 1.0f; //carry remainder
+            fpsFrameCounter =0;
+            fpsSecondTimer -=1.0f; //carry remainder
         }
 
         //Handling controls
         Controls(KeyboardState, MouseState);
-        
+
         //Allowed screen's color
         LoadWindowAttribs();
-        
+
         //Raycount limiter
         rayCount = Math.Min(Settings.Graphics.RayCount, (int)minimumScreenSize);
         // recompute wallWidth here so Engine and RayCasting use same value
         wallWidth = minimumScreenSize / Math.Max(1, rayCount);
-        
+
         //Raycasting:
-        // 1. RayCasting logic engine
-        // 2. Computing ceiling
-        // 3. Computing floor
-        // 4. Computing walls
-        // +. At the end of every part, the vertex attributes also get uploaded
         RayCasting.Run(
             ClientSize,
             FOV,
@@ -254,46 +281,54 @@ internal partial class Engine : GameWindow
         );
 
         //Sprites
-        //Sprites are not in the RayCasting because they use3D matrix
         LoadSpriteAttribs();
-        
-        float lineSpacing = minimumScreenSize / 100f;
-        float lineHeight = minimumScreenSize / 50f;
+
+        float lineSpacing = minimumScreenSize /100f;
+        float lineHeight = minimumScreenSize /50f;
 
         //Text overlay: update only once per second
         LoadTextAttribs(
             $"FPS: {displayedFPS}",
-            screenHorizontalOffset + (minimumScreenSize / 80f),
-            screenVerticalOffset + minimumScreenSize - (minimumScreenSize / 80f),
+            screenHorizontalOffset + (minimumScreenSize /80f),
+            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f),
             1f,
-            new Vector3(1f, 1f, 1f)
+            new Vector3(1f,1f,1f)
         );
 
         LoadTextAttribs(
             $"X: {playerPosition.X}",
-            screenHorizontalOffset + (minimumScreenSize / 80f),
-            screenVerticalOffset + minimumScreenSize - (minimumScreenSize / 80f) - lineHeight - lineSpacing,
+            screenHorizontalOffset + (minimumScreenSize /80f),
+            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f) - lineHeight - lineSpacing,
             1f,
-            new Vector3(1f, 1f, 1f)
+            new Vector3(1f,1f,1f)
         );
 
         LoadTextAttribs(
             $"Y: {playerPosition.Y}",
-            screenHorizontalOffset + (minimumScreenSize / 80f),
-            screenVerticalOffset + minimumScreenSize - (minimumScreenSize / 80f) - (lineHeight * 2) - (lineSpacing * 2),
+            screenHorizontalOffset + (minimumScreenSize /80f),
+            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f) - (lineHeight *2) - (lineSpacing *2),
             1f,
-            new Vector3(1f, 1f, 1f)
+            new Vector3(1f,1f,1f)
         );
 
-        //Text scheme
-        // - text
-        // - offset x
-        // - offset y
-        // - font size
-        // - vec3 rgb
+        LoadTextAttribs(
+            $"Map: {Level.CustomMaps[customsCurrentId].MapName}",
+            screenHorizontalOffset + (minimumScreenSize /80f),
+            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f) - (lineHeight *3) - (lineSpacing *3),
+            1f,
+            new Vector3(1f,1f,1f)
+        );
+
+        LoadTextAttribs(
+            $"Player Angle: {playerAngle}",
+            screenHorizontalOffset + (minimumScreenSize /80f),
+            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f) - (lineHeight *4) - (lineSpacing *4),
+            1f,
+            new Vector3(1f,1f,1f)
+        );
 
         ShaderHandler.LoadBufferAndClear();
-    }
+        }
     //=============================================================================================
 
     //Every frame's renderer (second-half)
@@ -307,7 +342,7 @@ internal partial class Engine : GameWindow
 
         //Allowed screen's color
         ShaderHandler.DrawWindow();
-        
+
         if (!isInGame)
         {
             ShaderHandler.DrawMenus();
@@ -326,7 +361,7 @@ internal partial class Engine : GameWindow
 
         SwapBuffers();
     }
-    
+
     protected override void OnUnload()
     {
         base.OnUnload();

@@ -33,21 +33,21 @@ internal partial class ShaderHandler
         GL.BindBuffer(BufferTarget.ArrayBuffer, FloorVBO);
         //Attribute0
         GL.EnableVertexAttribArray(0);
-        GL.VertexAttribPointer(0, 4, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
+        GL.VertexAttribPointer(0,4, VertexAttribPointerType.Float, false,6 * sizeof(float),0);
         //Attribute1
         GL.EnableVertexAttribArray(1);
-        GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Float, false, 6 * sizeof(float), 4 * sizeof(float));
-        //Attribute1
+        GL.VertexAttribPointer(1,1, VertexAttribPointerType.Float, false,6 * sizeof(float),4 * sizeof(float));
+        //Attribute2
         GL.EnableVertexAttribArray(2);
-        GL.VertexAttribPointer(2, 1, VertexAttribPointerType.Float, false, 6 * sizeof(float), 5 * sizeof(float));
+        GL.VertexAttribPointer(2,1, VertexAttribPointerType.Float, false,6 * sizeof(float),5 * sizeof(float));
         //Divisor
-        GL.VertexAttribDivisor(0, 1);
-        GL.VertexAttribDivisor(1, 1);
-        GL.VertexAttribDivisor(2, 1);
+        GL.VertexAttribDivisor(0,1);
+        GL.VertexAttribDivisor(1,1);
+        GL.VertexAttribDivisor(2,1);
         //Disable face culling to avoid accidentally removing one triangle
         GL.Disable(EnableCap.CullFace);
         //Unbind for safety
-        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        GL.BindBuffer(BufferTarget.ArrayBuffer,0);
         GL.BindVertexArray(0);
         //Uniforms
         FloorShader.Use();
@@ -79,7 +79,7 @@ internal partial class ShaderHandler
             FloorVertices.Length * sizeof(float),
             FloorVertices,
             BufferUsageHint.DynamicDraw);
-        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        GL.BindBuffer(BufferTarget.ArrayBuffer,0);
         //CLEARING LIST
         FloorVertexAttribList.Clear();
     }
@@ -91,33 +91,36 @@ internal partial class ShaderHandler
         float playerAngle,
         float pitch)
     {
+        if (Textures.MapFloorTex ==0 || Textures.MapSize.X ==0 || Textures.MapSize.Y ==0)
+            return;
+
         FloorShader?.Use();
 
-        //Binding map array's ceiling layer to Texture0
-        //MapCeiling
+        //MapFloor
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, Textures.MapFloorTex);
-        FloorShader?.SetInt("uMapFloor", 0);
+        FloorShader?.SetInt("uMapFloor",0);
 
         //Binding wall textures from Texture1
-        for (int i = 0; i < Textures.Walls.Count; i++)
+        for (int i =0; i < Textures.Walls.Count; i++)
         {
             Textures.BindTex(Textures.Walls, i, TextureUnit.Texture1 + i);
-            FloorShader?.SetInt($"uTextures[{i}]", i + 1);
+            FloorShader?.SetInt($"uTextures[{i}]", i +1);
         }
 
-        FloorShader?.SetVector2("uMapSize", new Vector2(Level.MapFloor.GetLength(1), Level.MapFloor.GetLength(0)));
+        // IMPORTANT: use the GPU map size (matches the integer textures)
+        FloorShader?.SetVector2("uMapSize", new Vector2(Textures.MapSize.X, Textures.MapSize.Y));
         FloorShader?.SetFloat("uStepSize", wallWidth);
         FloorShader?.SetVector2("uPlayerPos", new Vector2(playerPosition.X, playerPosition.Y));
         FloorShader?.SetFloat("uPlayerAngle", playerAngle);
         FloorShader?.SetFloat("uPitch", pitch);
 
         GL.BindVertexArray(FloorVAO);
-        int floorLen = FloorVertices?.Length ?? 0;
-        int instanceCount = floorLen / 6;
-        if (instanceCount > 0)
+        int floorLen = FloorVertices?.Length ??0;
+        int instanceCount = floorLen /6;
+        if (instanceCount >0)
         {
-            GL.DrawArraysInstanced(PrimitiveType.TriangleStrip, 0, 4, instanceCount);
+            GL.DrawArraysInstanced(PrimitiveType.TriangleStrip,0,4, instanceCount);
         }
     }
 }

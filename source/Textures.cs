@@ -84,11 +84,42 @@ internal sealed class Textures : IDisposable
     public static int MapWallsTex { get; private set; }
     public static Vector2i MapSize { get; private set; }
 
+    /// <summary>
+    /// Loads non-map textures (atlases, UI, wall/sprite sheets). Call this once on startup.
+    /// </summary>
+    public static void LoadStatic()
+    {
+        if (Walls.Count !=0) Walls.Clear();
+        if (Sprites.Count !=0) Sprites.Clear();
+        if (Containers.Count !=0) Containers.Clear();
+        //if (HUD.Count !=0) HUD.Clear();
+        if (Buttons.Count !=0) Buttons.Clear();
+        if (Fonts.Count !=0) Fonts.Clear();
+
+        LoadInto(Walls, wallPaths);
+        LoadInto(Sprites, spritePaths);
+        LoadInto(Containers, containerPaths);
+        //LoadInto(HUD, hudPaths);
+        LoadInto(Buttons, buttonPaths);
+        LoadInto(Fonts, fontPaths);
+    }
+
+    /// <summary>
+    /// Loads/updates the map integer textures (R32i). Call this after a map was selected.
+    /// </summary>
     public static void LoadMapTextures(int[,] mapWalls, int[,] mapCeiling, int[,] mapFloor)
     {
-        if (MapCeilingTex != 0) GL.DeleteTexture(MapCeilingTex);
-        if (MapFloorTex != 0) GL.DeleteTexture(MapFloorTex);
-        if (MapWallsTex != 0) GL.DeleteTexture(MapWallsTex);
+        // Reject zero-sized maps to avoid undefined GL state.
+        if (mapWalls.GetLength(0) ==0 || mapWalls.GetLength(1) ==0)
+            throw new ArgumentException("mapWalls is empty");
+        if (mapCeiling.GetLength(0) ==0 || mapCeiling.GetLength(1) ==0)
+            throw new ArgumentException("mapCeiling is empty");
+        if (mapFloor.GetLength(0) ==0 || mapFloor.GetLength(1) ==0)
+            throw new ArgumentException("mapFloor is empty");
+
+        if (MapCeilingTex !=0) GL.DeleteTexture(MapCeilingTex);
+        if (MapFloorTex !=0) GL.DeleteTexture(MapFloorTex);
+        if (MapWallsTex !=0) GL.DeleteTexture(MapWallsTex);
 
         MapCeilingTex = CreateMapTexture(mapCeiling);
         MapWallsTex = CreateMapTexture(mapWalls);
@@ -97,23 +128,11 @@ internal sealed class Textures : IDisposable
         MapSize = (mapWalls.GetLength(1), mapWalls.GetLength(0));
     }
 
+    // Backwards-compatible: keep old API but delegate.
     public static void LoadAll(int[,] mapWalls, int[,] mapCeiling, int[,] mapFloor)
     {
+        LoadStatic();
         LoadMapTextures(mapWalls, mapCeiling, mapFloor);
-
-        if (Walls.Count != 0) Walls.Clear();
-        if (Sprites.Count != 0) Sprites.Clear();
-        if (Containers.Count != 0) Containers.Clear();
-        //if (HUD.Count != 0) HUD.Clear();
-        if (Buttons.Count != 0) Buttons.Clear();
-        if (Fonts.Count != 0) Fonts.Clear();
-
-        LoadInto(Walls, wallPaths);
-        LoadInto(Sprites, spritePaths);
-        LoadInto(Containers, containerPaths);
-        //LoadInto(HUD, hudPaths);
-        LoadInto(Buttons, buttonPaths);
-        LoadInto(Fonts, fontPaths);
     }
 
     static void LoadInto(List<Textures> texList, IReadOnlyList<string> paths)
@@ -156,7 +175,7 @@ internal sealed class Textures : IDisposable
 
     public static void BindTex(List<Textures> texList, int texIndex, TextureUnit unit)
     {
-        if (texIndex < 0 || texIndex >= texList.Count)
+        if (texIndex <0 || texIndex >= texList.Count)
         {
             GL.ActiveTexture(unit);
             GL.BindTexture(TextureTarget.Texture2D,0);
