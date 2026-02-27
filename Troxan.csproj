@@ -8,18 +8,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="assets\maps\customs\Daydream\**" />
+    <Compile Remove="assets\maps\customs\No_Way_Out\**" />
     <Compile Remove="assets\testTextures\**" />
     <Compile Remove="assets\textures\map\sprites\enemies\**" />
     <Compile Remove="assets\textures\map\sprites\items\**" />
     <Compile Remove="assets\textures\map\sprites\objects\**" />
     <Compile Remove="assets\textures\map\sprites\projectiles\**" />
     <Compile Remove="assets\textures\wall\**" />
+    <EmbeddedResource Remove="assets\maps\customs\Daydream\**" />
+    <EmbeddedResource Remove="assets\maps\customs\No_Way_Out\**" />
     <EmbeddedResource Remove="assets\testTextures\**" />
     <EmbeddedResource Remove="assets\textures\map\sprites\enemies\**" />
     <EmbeddedResource Remove="assets\textures\map\sprites\items\**" />
     <EmbeddedResource Remove="assets\textures\map\sprites\objects\**" />
     <EmbeddedResource Remove="assets\textures\map\sprites\projectiles\**" />
     <EmbeddedResource Remove="assets\textures\wall\**" />
+    <None Remove="assets\maps\customs\Daydream\**" />
+    <None Remove="assets\maps\customs\No_Way_Out\**" />
     <None Remove="assets\testTextures\**" />
     <None Remove="assets\textures\map\sprites\enemies\**" />
     <None Remove="assets\textures\map\sprites\items\**" />
@@ -31,15 +37,27 @@
   <ItemGroup>
     <None Remove="assets\app.ico" />
     <None Remove="assets\icon.png" />
-    <None Remove="assets\maps\customs\Daydream\map.json" />
-    <None Remove="assets\maps\customs\Daydream\map.png" />
-    <None Remove="assets\maps\customs\Daydream\metadata.json" />
-    <None Remove="assets\maps\customs\No_Way_Out\map.json" />
-    <None Remove="assets\maps\customs\No_Way_Out\map.png" />
-    <None Remove="assets\maps\customs\No_Way_Out\metadata.json" />
-    <None Remove="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\map.json" />
-    <None Remove="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\map.png" />
-    <None Remove="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\metadata.json" />
+    <None Remove="assets\maps\customs\Enemy_Easy_1\map.json" />
+    <None Remove="assets\maps\customs\Enemy_Easy_1\map.png" />
+    <None Remove="assets\maps\customs\Enemy_Easy_1\metadata.json" />
+    <None Remove="assets\maps\customs\Enemy_Easy_2\map.json" />
+    <None Remove="assets\maps\customs\Enemy_Easy_2\map.png" />
+    <None Remove="assets\maps\customs\Enemy_Easy_2\metadata.json" />
+    <None Remove="assets\maps\customs\Enemy_Easy_3\map.json" />
+    <None Remove="assets\maps\customs\Enemy_Easy_3\map.png" />
+    <None Remove="assets\maps\customs\Enemy_Easy_3\metadata.json" />
+    <None Remove="assets\maps\customs\Enemy_Medium_1\map.json" />
+    <None Remove="assets\maps\customs\Enemy_Medium_1\map.png" />
+    <None Remove="assets\maps\customs\Enemy_Medium_1\metadata.json" />
+    <None Remove="assets\maps\customs\Enemy_Medium_2\map.json" />
+    <None Remove="assets\maps\customs\Enemy_Medium_2\map.png" />
+    <None Remove="assets\maps\customs\Enemy_Medium_2\metadata.json" />
+    <None Remove="assets\maps\customs\Enemy_Medium_3\map.json" />
+    <None Remove="assets\maps\customs\Enemy_Medium_3\map.png" />
+    <None Remove="assets\maps\customs\Enemy_Medium_3\metadata.json" />
+    <None Remove="assets\maps\customs\Spawn_Room\map.json" />
+    <None Remove="assets\maps\customs\Spawn_Room\map.png" />
+    <None Remove="assets\maps\customs\Spawn_Room\metadata.json" />
     <None Remove="assets\maps\map01.json" />
     <None Remove="assets\maps\story\01.json" />
     <None Remove="assets\maps\story\02.json" />
@@ -49,6 +67,22 @@
     <None Remove="assets\maps\story\3.json" />
     <None Remove="assets\maps\story\info.json" />
     <None Remove="assets\maps\story\info.txt" />
+    <None Remove="assets\maps\story\rooms\boss.json" />
+    <None Remove="assets\maps\story\rooms\enemy_easy_1.json" />
+    <None Remove="assets\maps\story\rooms\enemy_easy_2.json" />
+    <None Remove="assets\maps\story\rooms\enemy_easy_3.json" />
+    <None Remove="assets\maps\story\rooms\enemy_hard_1.json" />
+    <None Remove="assets\maps\story\rooms\enemy_hard_2.json" />
+    <None Remove="assets\maps\story\rooms\enemy_hard_3.json" />
+    <None Remove="assets\maps\story\rooms\enemy_medium_1.json" />
+    <None Remove="assets\maps\story\rooms\enemy_medium_2.json" />
+    <None Remove="assets\maps\story\rooms\enemy_medium_3.json" />
+    <None Remove="assets\maps\story\rooms\heal.json" />
+    <None Remove="assets\maps\story\rooms\portal.json" />
+    <None Remove="assets\maps\story\rooms\spawn.json" />
+    <None Remove="assets\maps\story\rooms\tresaure_1.json" />
+    <None Remove="assets\maps\story\rooms\tresaure_2.json" />
+    <None Remove="assets\maps\story\rooms\tresaure_3.json" />
     <None Remove="assets\textures\bricks.txt" />
     <None Remove="assets\textures\door_mossy_stonebricks.png" />
     <None Remove="assets\textures\door_mossy_stonebricks.txt" />
@@ -73,6 +107,7 @@
     <None Remove="assets\textures\gui\pausemenu.png" />
     <None Remove="assets\textures\gui\web_ibm_mda_atlas.png" />
     <None Remove="assets\textures\map\door.png" />
+    <None Remove="assets\textures\map\mossy_planks.png" />
     <None Remove="assets\textures\map\planks.png" />
     <None Remove="assets\textures\map\sprites\enemies_atlas.png" />
     <None Remove="assets\textures\map\sprites\items_atlas.png" />
@@ -130,31 +165,67 @@
     <Content Include="assets\icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\maps\customs\Daydream\map.json">
+    <Content Include="assets\maps\customs\Enemy_Easy_1\map.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\maps\customs\Daydream\map.png">
+    <Content Include="assets\maps\customs\Enemy_Easy_1\map.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\maps\customs\Daydream\metadata.json">
+    <Content Include="assets\maps\customs\Enemy_Easy_1\metadata.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\maps\customs\No_Way_Out\map.json">
+    <Content Include="assets\maps\customs\Enemy_Easy_2\map.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\maps\customs\No_Way_Out\map.png">
+    <Content Include="assets\maps\customs\Enemy_Easy_2\map.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\maps\customs\No_Way_Out\metadata.json">
+    <Content Include="assets\maps\customs\Enemy_Easy_2\metadata.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\map.json">
+    <Content Include="assets\maps\customs\Enemy_Easy_3\map.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\map.png">
+    <Content Include="assets\maps\customs\Enemy_Easy_3\map.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="assets\maps\customs\Who_Tf_Is_Gigga_Nigga\metadata.json">
+    <Content Include="assets\maps\customs\Enemy_Easy_3\metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Enemy_Medium_1\map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Enemy_Medium_1\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Enemy_Medium_1\metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Enemy_Medium_2\map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Enemy_Medium_2\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Enemy_Medium_2\metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Enemy_Medium_3\map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Enemy_Medium_3\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Enemy_Medium_3\metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Spawn_Room\map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Spawn_Room\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Spawn_Room\metadata.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\maps\story\1.json">
@@ -167,6 +238,54 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\maps\story\info.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\boss.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\enemy_easy_1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\enemy_easy_2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\enemy_easy_3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\enemy_hard_1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\enemy_hard_2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\enemy_hard_3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\enemy_medium_1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\enemy_medium_2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\enemy_medium_3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\heal.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\portal.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\spawn.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\tresaure_1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\tresaure_2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\rooms\tresaure_3.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\textures\gui\buttons_atlas.png">
@@ -206,6 +325,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\textures\map\door.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\map\mossy_planks.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\textures\map\planks.png">

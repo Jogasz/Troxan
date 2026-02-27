@@ -22,7 +22,7 @@ out vec4 FragColor;
 //OnRenderFrame uniforms
 //======================
     //Textures array (uIn)
-uniform sampler2D uTextures[4];
+uniform sampler2D uTextures[5];
     //Map Ceiling array (uIn)
 uniform isampler2D uMapFloor;
     //Map's size (uIn)

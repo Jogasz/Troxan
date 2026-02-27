@@ -53,7 +53,7 @@ internal partial class Engine
         };
     }
 
-    internal static int[] buttonIds;
+    internal static int[]? buttonIds;
 
     void HandleAllMenus()
     {
@@ -79,7 +79,7 @@ internal partial class Engine
 
     void HandleCustomsMenu()
     {
-        buttonIds = new int[] { 15, 7, 11, 12 };
+        buttonIds = new int[] { 12, 13, 11, 7 };
 
         Vector3 mapNameClr = (
             232f / 255f,
@@ -93,7 +93,7 @@ internal partial class Engine
 
         //Counter
         LoadTextAttribs(
-            $"{customsCurrentId + 1}/{Level.CustomMaps.Count}",
+            $"{customsCurrentId + 1}/{Level.CustomMetaDatas.Count}",
             screenHorizontalOffset + (minimumScreenSize / 1.75f),
             screenVerticalOffset + (minimumScreenSize / 1.3f),
             2f,
@@ -102,7 +102,7 @@ internal partial class Engine
 
         //Author
         LoadTextAttribs(
-            $"by:{Level.CustomMaps[customsCurrentId].Author}",
+            $"by:{Level.CustomMetaDatas[customsCurrentId].Author}",
             screenHorizontalOffset + (minimumScreenSize / 2.3f),
             screenVerticalOffset + (minimumScreenSize / 1.45f),
             1.5f,
@@ -111,7 +111,7 @@ internal partial class Engine
 
         //Created at
         LoadTextAttribs(
-            $"at:{Level.CustomMaps[customsCurrentId].CreatedAt}",
+            $"at:{Level.CustomMetaDatas[customsCurrentId].CreatedAt}",
             screenHorizontalOffset + (minimumScreenSize / 2.3f),
             screenVerticalOffset + (minimumScreenSize / 1.85f),
             1.5f,
@@ -120,7 +120,7 @@ internal partial class Engine
 
         //Map name
         LoadTextAttribs(
-            $"{Level.CustomMaps[customsCurrentId].MapName}",
+            $"{Level.CustomMetaDatas[customsCurrentId].MapName}",
             screenHorizontalOffset + (minimumScreenSize / 8.5f),
             screenVerticalOffset + (minimumScreenSize / 2.5f),
             2f,
@@ -159,7 +159,7 @@ internal partial class Engine
         //Statistics
         //Alias
         LoadTextAttribs(
-            $"Recskas",
+            $"Lacika",
             screenHorizontalOffset + (minimumScreenSize / 2.72f),
             screenVerticalOffset + (minimumScreenSize / 1.49f),
             2f,

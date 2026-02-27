@@ -21,6 +21,7 @@ internal sealed class Textures : IDisposable
         //Map textures
         "assets/textures/map/stonebricks.png",
         "assets/textures/map/planks.png",
+        "assets/textures/map/mossy_planks.png",
         "assets/textures/map/door.png",
         "assets/textures/map/window.png"
     };

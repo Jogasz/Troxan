@@ -39,8 +39,7 @@ public class Program
             Console.WriteLine($"Level:\n{ex}");
         }
 
-        int levelTypeId = 1;
-        int levelMapId = 0;
+        Console.WriteLine("Breakpoint");
 
         Engine.Engine engine = new Engine.Engine(800, 800, "Troxan");
         engine.Run();

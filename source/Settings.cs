@@ -54,7 +54,7 @@ internal class Settings
         Graphics.FOV = graphicsObj.GetProperty("FOV").GetInt32();
         Graphics.RayCount = graphicsObj.GetProperty("RayCount").GetInt32();
         Graphics.RenderDistance = graphicsObj.GetProperty("RenderDistance").GetInt32();
-        Graphics.DistanceShade = graphicsObj.GetProperty("DistanceShade").GetInt32() / 10f;
+        Graphics.DistanceShade = graphicsObj.GetProperty("DistanceShade").GetInt32() / 100f;
 
         //Loading gameplay values
         Gameplay.TileSize = gameplayObj.GetProperty("TileSize").GetInt32();

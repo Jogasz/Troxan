@@ -12,7 +12,7 @@ internal partial class Engine
 {
     /* Buttons ID Translator
      * 0. Campaing
-     * 1. Customs
+     * 1. Custom Maps
      * 2. Setings
      * 3. Statistics
      * 4. Continue
@@ -22,51 +22,51 @@ internal partial class Engine
      * 8. Back to Game
      * 9. Main Menu
      * 10. Next Level
-     * 11. 'Left Arrow'
-     * 12. 'Right Arrow'
-     * 13. 'Up Arrow'
-     * 14. 'Down Arrow'
-     * 15. Play
+     * 11. Play
+     * 12. 'Left Arrow'
+     * 13. 'Right Arrow'
+     * 14. 'Up Arrow'
+     * 15. 'Down Arrow'
      */
 
     static int[] buttonsWidth = new int[]
     {
-        114,
-        98,
-        91,
-        102,
-        103,
-        122,
-        57,
-        63,
-        149,
-        128,
-        121,
-        32,
-        32,
-        32,
-        32,
-        58
+        177,
+        221,
+        147,
+        160,
+        165,
+        191,
+        104,
+        112,
+        226,
+        197,
+        188,
+        106,
+        74,
+        74,
+        74,
+        74,
     };
 
-    static int originalButtonsHeight = 32;
+    static int originalButtonsHeight = 42;
 
-    const float buttonsAtlasWidth = 447f;
-    const float buttonsAtlasHeight = 512f;
+    const float buttonsAtlasWidth = 678f;
+    const float buttonsAtlasHeight = 672f;
 
     static int customsCurrentId = 0;
 
     private void CustomsCurrentIdChanger(int buttonId)
     {
         int minLimit = 0;
-        int maxLimit = Level.CustomMaps.Count - 1;
+        int maxLimit = Level.CustomMetaDatas.Count - 1;
 
         switch (buttonId)
         {
-            case 11:
+            case 12:
                 if (customsCurrentId != minLimit) customsCurrentId -= 1;
                 break;
-            case 12:
+            case 13:
                 if (customsCurrentId != maxLimit) customsCurrentId += 1;
                 break;
         }
@@ -131,7 +131,7 @@ internal partial class Engine
             switch (id)
             {
                 //Play selected map
-                case 15:
+                case 11:
                     Level.Load(1, customsCurrentId);
 
                     if (!Level.mapLoaded)
@@ -145,9 +145,9 @@ internal partial class Engine
                     currentMenu = MenuId.Main;
                     break;
                 //Left arrow
-                case 11:
-                //Right arrow
                 case 12:
+                //Right arrow
+                case 13:
                     CustomsCurrentIdChanger(id);
                     break;
             }

@@ -76,7 +76,7 @@ internal partial class Engine : GameWindow
         ClientSize = (width, height),
         Title = title,
 
-        //WindowState = WindowState.Fullscreen,
+        WindowState = WindowState.Fullscreen,
         WindowBorder = WindowBorder.Resizable,
 
         Icon = LoadWindowIcon("assets/icon.png"),
@@ -106,8 +106,6 @@ internal partial class Engine : GameWindow
             Level.PlayerStarterPosition.Y * tileSize + (tileSize /2f));
 
         playerAngle = MathHelper.DegreesToRadians(Level.PlayerStarterAngle);
-        //distanceShade = Level.DistanceShade / 10f;
-
         mapCeiling = Level.MapCeiling;
         mapWalls = Level.MapWalls;
         mapFloor = Level.MapFloor;
@@ -115,14 +113,10 @@ internal partial class Engine : GameWindow
         pitch =0f;
 
         // Depends on map size
-        renderDistance = Math.Min(
-            Settings.Graphics.RenderDistance,
-            Math.Max(mapWalls.GetLength(0), mapWalls.GetLength(1)));
+        //renderDistance = Level.DistanceShade;
 
         // Upload new integer maps to GPU
         Textures.LoadMapTextures(mapWalls, mapCeiling, mapFloor);
-
-        Console.WriteLine($"MapTextures: C={Textures.MapCeilingTex} W={Textures.MapWallsTex} F={Textures.MapFloorTex} Size={Textures.MapSize}");
     }
 
     protected override void OnLoad()
@@ -197,7 +191,7 @@ internal partial class Engine : GameWindow
 
         //Offsets to center allowed screen
         screenHorizontalOffset = ClientSize.X > ClientSize.Y ? ((ClientSize.X - minimumScreenSize) /2) :0;
-        screenVerticalOffset = ClientSize.Y > ClientSize.X ? ((ClientSize.Y - minimumScreenSize) /2) :0;
+        screenVerticalOffset = ClientSize.Y > ClientSize.X ? ((ClientSize.Y - minimumScreenSize) / 2) : 0;
 
         //Updating ALL shader uniforms
         ShaderHandler.UpdateUniforms(
@@ -209,7 +203,6 @@ internal partial class Engine : GameWindow
     protected override void OnUpdateFrame(FrameEventArgs e)
     {
         base.OnUpdateFrame(e);
-
         //DeltaTime
         //=========================================================================================
         float currentTime = (float)stopwatch.Elapsed.TotalSeconds;
@@ -283,7 +276,7 @@ internal partial class Engine : GameWindow
         //Sprites
         LoadSpriteAttribs();
 
-        float lineSpacing = minimumScreenSize /100f;
+        float lineSpacing = minimumScreenSize /95f;
         float lineHeight = minimumScreenSize /50f;
 
         //Text overlay: update only once per second
@@ -312,7 +305,7 @@ internal partial class Engine : GameWindow
         );
 
         LoadTextAttribs(
-            $"Map: {Level.CustomMaps[customsCurrentId].MapName}",
+            $"Player Angle: {playerAngle}",
             screenHorizontalOffset + (minimumScreenSize /80f),
             screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f) - (lineHeight *3) - (lineSpacing *3),
             1f,
@@ -320,11 +313,11 @@ internal partial class Engine : GameWindow
         );
 
         LoadTextAttribs(
-            $"Player Angle: {playerAngle}",
-            screenHorizontalOffset + (minimumScreenSize /80f),
-            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f) - (lineHeight *4) - (lineSpacing *4),
+            $"Runtime: {stopwatch.Elapsed:mm\\:ss}",
+            screenHorizontalOffset + (minimumScreenSize / 80f),
+            screenVerticalOffset + minimumScreenSize - (minimumScreenSize / 80f) - (lineHeight * 4) - (lineSpacing * 4),
             1f,
-            new Vector3(1f,1f,1f)
+            new Vector3(1f, 1f, 1f)
         );
 
         ShaderHandler.LoadBufferAndClear();

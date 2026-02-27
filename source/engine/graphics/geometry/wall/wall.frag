@@ -24,7 +24,7 @@ out vec4 FragColor;
 //OnRenderFrame uniforms
 //======================
     //Textures array (uIn)
-uniform sampler2D uTextures[4];
+uniform sampler2D uTextures[5];
     //Player's pitch (uIn)
 uniform float uPitch;
 

@@ -4,45 +4,95 @@ using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using static Sources.Level;
 
 namespace Sources;
 
 internal class Level
 {
-    //First loading
-    //Custom map metadatas / Story map's completed status
+    //First loading:
+    // - Which story levels are finished
+    // - Rooms for the story maps
+    // - Custom map metadatas for pre-load info display
     //=========================================================================================
-    internal static bool mapLoaded = false;
-    internal static bool[] levelFinished = Array.Empty<bool>();
+        //Sprite template
+    internal sealed class SpriteTemplate
+    {
+        //Required properties
+        public int Type { get; set; }
+        public int Id { get; set; }
+        public bool State { get; internal set; }
+        public Vector2 Position { get; set; }
 
-    //Custom level metadata
-    internal sealed class CustomMetadatas
+        //Optional properties
+        public bool? Interacted { get; set; }
+        public int? Health { get; set; }
+    }
+
+        //Story rooms template
+    internal class StoryRoomTemplate
+    {
+        public required string FilePath { get; init; }
+        public required int[,] RoomWalls { get; set; } = new int[0, 0];
+        public List<SpriteTemplate>? Sprites { get; set; } = new();
+    }
+
+        //Custom map metadatas template
+    internal sealed class CustomMetaDataTemplate
     {
         public required string FolderName { get; init; }
         public required string FolderPath { get; init; }
-        internal string Author { get; init; } = "Unknown";
-        internal string MapName { get; init; } = "Unknown";
-        internal string CreatedAt { get; init; } = "Unknown";
+        public required string Author { get; init; }
+        public required string MapName { get; init; }
+        public required string CreatedAt { get; init; }
         public required string InfosPath { get; init; }
         public required string MapJsonPath { get; init; }
         public required string MapPngPath { get; init; }
     }
 
-    //Discovered custom maps
-    internal static IReadOnlyList<CustomMetadatas> CustomMaps => _customMaps;
-    static readonly List<CustomMetadatas> _customMaps = new();
-
-    //Dto
-    private sealed class CustomMetadatasDto
+        //Bool to determine if the map has been loaded, if yes, it can be drawn
+    internal static bool mapLoaded = false;
+        //Array of bools to check which story maps has been completed
+    internal static bool[] levelFinished = Array.Empty<bool>();
+        
+        //List of StoryRooms to contain loaded rooms
+    internal static readonly List<StoryRoomTemplate> StoryRooms = new();
+        //Directory where the room files can be found
+    internal static readonly string roomsDir = "assets/maps/story/rooms";
+        //To set the ID's to rooms, each path is given in sequence
+    internal static readonly string[] roomPaths =
     {
-        public string? Author { get; set; }
-        public string? MapName { get; set; }
-        public string? CreatedAt { get; set; }
-    }
+        $"{roomsDir}/spawn.json"
+        //$"{roomsDir}/enemy_easy_1.json",
+        //$"{roomsDir}/enemy_easy_2.json",
+        //$"{roomsDir}/enemy_easy_3.json",
+        //$"{roomsDir}/enemy_medium_1.json",
+        //$"{roomsDir}/enemy_medium_2.json",
+        //$"{roomsDir}/enemy_medium_3.json",
+        //$"{roomsDir}/enemy_hard_1.json",
+        //$"{roomsDir}/enemy_hard_2.json",
+        //$"{roomsDir}/enemy_hard_3.json",
+        //$"{roomsDir}/heal.json",
+        //$"{roomsDir}/tresaure_1.json",
+        //$"{roomsDir}/tresaure_2.json",
+        //$"{roomsDir}/tresaure_3.json",
+        //$"{roomsDir}/boss.json",
+        //$"{roomsDir}/portal.json"
+    };
 
+        //List of custom map metadatas to contain pre-loaded infos for display of custom maps before loading actual map
+    internal static readonly List<CustomMetaDataTemplate> CustomMetaDatas = new();
+
+        //Method for the first essential loading
     internal static void FirstLoad(string storyFilePath, string customsRootDir)
     {
-        //Story map's completed status
+        FirstLoadStory(storyFilePath);
+        FirstLoadCustoms(customsRootDir);
+    }
+
+    static void FirstLoadStory(string storyFilePath)
+    {
+        //Story maps completed status
         //==========================================================================
         if (!File.Exists(storyFilePath))
             throw new FileNotFoundException($" - File not found: '{storyFilePath}'");
@@ -57,13 +107,103 @@ internal class Level
 
             levelFinished[i] = line == "1";
         }
+        //==========================================================================
 
+        //Story map rooms
+        //==========================================================================
+        for (int i = 0; i < roomPaths.Count(); i++)
+        {
+            string filePath = roomPaths[i];
+
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($" - File not found: '{filePath}'");
+
+            var obj = JsonConvert.DeserializeObject<StoryRoomTemplate>(File.ReadAllText(filePath)) ??
+                throw new InvalidOperationException($" - Failed to deserialize: '{filePath}'");
+
+            if (obj.RoomWalls.GetLength(0) != 11 || obj.RoomWalls.GetLength(1) != 11) throw new InvalidOperationException($" - Room must be a size of 11x11!: '{filePath}'");
+
+            int[,] roomWalls = obj.RoomWalls ?? throw new InvalidOperationException($" - Deserialized RoomWalls is null in: '{filePath}'");
+
+            List<SpriteTemplate> sprites = new();
+
+            foreach (var sprite in obj.Sprites ?? Enumerable.Empty<SpriteTemplate>())
+            {
+                    //Temporary destination variable to later load it into Sprites
+                var dst = new SpriteTemplate
+                {
+                    Type = sprite.Type,
+                    Id = sprite.Id,
+                    Position = sprite.Position,
+                    State = true
+                };
+
+                    //Adding optional properties
+                switch (sprite.Type)
+                {
+                        //Object / Item
+                    case 0:
+                    case 1:
+                        dst.Interacted = false;
+                        break;
+                        //Enemy
+                    case 2:
+                        dst.Health = dst.Id switch
+                        {
+                            //Jiggler
+                            0 => 50,
+                            //Korvax
+                            1 => 70,
+                            //Default
+                            _ => null
+                        };
+                        break;
+                }
+                sprites.Add(dst);
+            }
+
+            StoryRooms.Add(new StoryRoomTemplate
+            {
+                FilePath = filePath,
+                RoomWalls = roomWalls,
+                Sprites = sprites
+            });
+
+            Console.WriteLine($" - {filePath}:");
+            Console.WriteLine("RoomWalls");
+            for (int y = 0; y < StoryRooms[i].RoomWalls.GetLength(0); y++)
+            {
+                for (int x = 0; x < StoryRooms[i].RoomWalls.GetLength(1); x++)
+                {
+                    Console.Write(StoryRooms[i].RoomWalls[y, x]);
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine("Sprites");
+            foreach (var sprite in StoryRooms[i].Sprites ?? Enumerable.Empty<SpriteTemplate>())
+            {
+                Console.WriteLine("=============");
+                Console.WriteLine($"Type: {sprite.Type}");
+                Console.WriteLine($"Id: {sprite.Id}");
+                Console.WriteLine($"Position: {sprite.Position}");
+                Console.WriteLine($"State: {sprite.State}");
+                if (sprite.Interacted is not null) Console.WriteLine($"Interacted: {sprite.Interacted}");
+                if (sprite.Health is not null) Console.WriteLine($"Health: {sprite.Health}");
+                Console.WriteLine("=============");
+            }
+
+        }
+        //==========================================================================
+    }
+
+    static void FirstLoadCustoms(string customsRootDir)
+    {
         //Custom map metadatas
         //==========================================================================
         if (!Directory.Exists(customsRootDir))
-            throw new DirectoryNotFoundException($" - Directory not found: '{storyFilePath}'");
+            throw new DirectoryNotFoundException($" - Directory not found: '{customsRootDir}'");
 
-        _customMaps.Clear();
+        CustomMetaDatas.Clear();
 
         //Each subdir is one custom map
         foreach (var mapDir in Directory.EnumerateDirectories(customsRootDir))
@@ -80,10 +220,10 @@ internal class Level
                 !File.Exists(mapPngPath))
                 continue;
 
-            CustomMetadatasDto? dto;
+            CustomMetaDataTemplate? obj;
             try
             {
-                dto = JsonConvert.DeserializeObject<CustomMetadatasDto>(File.ReadAllText(metaDataPath));
+                obj = JsonConvert.DeserializeObject<CustomMetaDataTemplate>(File.ReadAllText(metaDataPath));
             }
             //Broken metadata.json
             catch
@@ -91,38 +231,35 @@ internal class Level
                 continue;
             }
 
-            _customMaps.Add(new CustomMetadatas
+            CustomMetaDatas.Add(new CustomMetaDataTemplate
             {
                 FolderName = folderName,
                 FolderPath = mapDir,
                 InfosPath = metaDataPath,
                 MapJsonPath = mapJsonPath,
                 MapPngPath = mapPngPath,
-                Author = dto?.Author ?? "Unknown",
-                MapName = dto?.MapName ?? $"'{folderName}'",
-                CreatedAt = dto?.CreatedAt ?? "Unknown"
+                Author = obj?.Author ?? "Unknown",
+                MapName = obj?.MapName ?? $"'{folderName}'",
+                CreatedAt = obj?.CreatedAt ?? "Unknown"
             });
         }
 
         //Order maps
-        _customMaps.Sort((a, b) => StringComparer.OrdinalIgnoreCase.Compare(a.MapName, b.MapName));
+        CustomMetaDatas.Sort((a, b) => StringComparer.OrdinalIgnoreCase.Compare(a.MapName, b.MapName));
         //==========================================================================
     }
     //=========================================================================================
 
-    //Level loader
+    //Level loading:
+    //Takes two arguments:
+    // - typeId: 0 = story | 1 = custom
+    // - mapId
+    //Loading:
+    // - Story map: Loads the given story map, then constructs a usable map for Engine from the given room Ids
+    // - Custom map: Loads the given custom map
     //=========================================================================================
-    //Class properties
-    internal static Vector2 PlayerStarterPosition { get; private set; }
-    internal static int PlayerStarterAngle { get; private set; }
-    internal static int DistanceShade { get; private set; }
-    internal static int[,] MapWalls { get; private set; } = new int[0, 0];
-    internal static int[,] MapCeiling { get; private set; } = new int[0, 0];
-    internal static int[,] MapFloor { get; private set; } = new int[0, 0];
-    internal static List<Sprite> Sprites { get; private set; } = new();
-
-    //DTO - Data Transfer Object
-    private sealed class LevelDto
+        //Data Transfer Object for loaded custom map
+    private sealed class CustomMapDto
     {
         public Vector2 PlayerStarterPosition { get; set; }
         public int PlayerStarterAngle { get; set; }
@@ -130,111 +267,61 @@ internal class Level
         public int[,] MapWalls { get; set; } = new int[0, 0];
         public int[,] MapCeiling { get; set; } = new int[0, 0];
         public int[,] MapFloor { get; set; } = new int[0, 0];
-        public List<Sprite> Sprites { get; set; } = new();
+        public List<SpriteTemplate> Sprites { get; set; } = new();
     }
 
-    //Sprite object
-    internal class Sprite
-    {
-        //Needed properties
-        public int Type { get; set; }
-        public int Id { get; set; }
-        public bool State { get; internal set; }
-        public Vector2 Position { get; set; }
+    internal static Vector2 PlayerStarterPosition { get; private set; }
+    internal static int PlayerStarterAngle { get; private set; }
+    internal static int DistanceShade { get; private set; }
+    internal static int[,] MapWalls { get; private set; } = new int[0, 0];
+    internal static int[,] MapCeiling { get; private set; } = new int[0, 0];
+    internal static int[,] MapFloor { get; private set; } = new int[0, 0];
+        //A list of Sprites based on SpiteTemplates that will contain the current loaded map's sprites
+    internal static List<SpriteTemplate> Sprites { get; private set; } = new();
 
-        //Optional properties
-        public bool? Interacted { get; set; }
-        public int? Health { get; set; }
-    }
-
-    //JSON reader and deserializer
+        //Level loader
     internal static void Load(int typeId, int mapId)
     {
-        //Story map / type = 0
+        //Story map
         //==========================================================================
-        if (typeId == 0) return;
+        if (typeId == 0) LoadStoryMap(mapId);
         //==========================================================================
 
-        //Custom map / type = 1
+        //Custom map
         //==========================================================================
         else if (typeId == 1) LoadCustomMap(mapId);
         //==========================================================================
-
-        //Console.WriteLine($"Choosen map type: {(typeId == 0 ? "Story" : "Custom")}");
-        //Console.WriteLine($"Choosen map: {Level.CustomMaps[mapId].MapName}");
-
-        //var m = Level.CustomMaps[mapId];
-        //Console.WriteLine("================================");
-        //Console.WriteLine($"Folder name: '{m.FolderName}'");
-        //Console.WriteLine($"Folder path: '{m.FolderPath}'");
-        //Console.WriteLine($"Metadata path: '{m.InfosPath}'");
-        //Console.WriteLine($"Map Json path: '{m.MapJsonPath}'");
-        //Console.WriteLine($"Map Png path: '{m.MapPngPath}'");
-        //Console.WriteLine($"Author: '{m.Author}'");
-        //Console.WriteLine($"Map name: '{m.MapName}'");
-        //Console.WriteLine($"CreatedAt: '{m.CreatedAt}'");
-        //Console.WriteLine("================================");
-        //Console.WriteLine($"Player Starter Position: {Level.PlayerStarterPosition}");
-        //Console.WriteLine($"Player Starter Angle: {Level.PlayerStarterAngle}");
-        //Console.WriteLine($"Distance Shade: {Level.DistanceShade}");
-        //Console.WriteLine("Map Ceiling Array:");
-        //for (int i = 0; i < Level.MapCeiling.GetLength(1); i++)
-        //{
-        //    Console.Write("[");
-        //    for (int j = 0; j < Level.MapCeiling.GetLength(0); j++)
-        //    {
-        //        Console.Write(Level.MapCeiling[i, j]);
-        //    }
-        //    Console.Write("]\n");
-        //}
-        //Console.WriteLine("Map Walls Array:");
-        //for (int i = 0; i < Level.MapWalls.GetLength(1); i++)
-        //{
-        //    Console.Write("[");
-        //    for (int j = 0; j < Level.MapWalls.GetLength(0); j++)
-        //    {
-        //        Console.Write(Level.MapWalls[i, j]);
-        //    }
-        //    Console.Write("]\n");
-        //}
-        //Console.WriteLine("Map Floor Array:");
-        //for (int i = 0; i < Level.MapFloor.GetLength(1); i++)
-        //{
-        //    Console.Write("[");
-        //    for (int j = 0; j < Level.MapFloor.GetLength(0); j++)
-        //    {
-        //        Console.Write(Level.MapFloor[i, j]);
-        //    }
-        //    Console.Write("]\n");
-        //}
-        //Console.WriteLine("================================");
-        //Console.WriteLine("Sprites: ");
-        //foreach (var sp in Level.Sprites)
-        //{
-        //    Console.WriteLine();
-        //    Console.WriteLine($"Type: {sp.Type}");
-        //    Console.WriteLine($"Id: {sp.Id}");
-        //    Console.WriteLine($"State: {sp.State}");
-        //    Console.WriteLine($"Position: {sp.Position}");
-        //    if (sp.Interacted is not null) Console.WriteLine($"Interacted: {sp.Interacted}");
-        //    if (sp.Health is not null) Console.WriteLine($"Health: {sp.Health}");
-        //}
-        //Console.WriteLine("================================");
     }
 
-    private static void LoadCustomMap(int mapId)
+    static void LoadStoryMap(int mapId)
     {
-        //If mapId is invalid
-        if (mapId < 0 || mapId > (_customMaps.Count - 1)) return;
+        string filePath = $"assets/maps/story/{mapId}.json";
 
-        string filePath = _customMaps[mapId].MapJsonPath;
-
+            //If file doesn't exist
         if (!File.Exists(filePath))
             throw new FileNotFoundException($" - File not found: '{filePath}'");
 
-        var dto = JsonConvert.DeserializeObject<LevelDto>(File.ReadAllText(filePath)) ??
+            //Deserialize
+        int[,] roomsIdArray = JsonConvert.DeserializeObject<int[,]>(File.ReadAllText(filePath)) ??
+            throw new InvalidOperationException($" - Failed to deserialize: {filePath}");
+    }
+
+    static void LoadCustomMap(int mapId)
+    {
+            //If mapId is invalid
+        if (mapId < 0 || mapId > (CustomMetaDatas.Count - 1)) return;
+
+        string filePath = CustomMetaDatas[mapId].MapJsonPath;
+
+            //If map file doesn't exist
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($" - File not found: '{filePath}'");
+
+            //Deserializing JSON to a Data Transfer Object
+        var dto = JsonConvert.DeserializeObject<CustomMapDto>(File.ReadAllText(filePath)) ??
             throw new InvalidOperationException($" - Failed to deserialize: '{filePath}'");
 
+            //Connecting the runtime properties to DTO properties
         PlayerStarterPosition = new Vector2(dto.PlayerStarterPosition.X, dto.PlayerStarterPosition.Y);
         PlayerStarterAngle = dto.PlayerStarterAngle;
         DistanceShade = dto.DistanceShade;
@@ -242,22 +329,25 @@ internal class Level
         MapWalls = dto.MapWalls;
         MapFloor = dto.MapFloor;
 
+            //Clearing sprite list before using
         Sprites.Clear();
+
+            //Declaring sprite list's size
         Sprites.Capacity = dto.Sprites.Count;
 
-        for (int i = 0; i < dto.Sprites.Count; i++)
+        foreach (var sprite in dto.Sprites)
         {
-            var src = dto.Sprites[i];
-
-            var dst = new Sprite
+                //Temporary destination variable to later load it into Sprites
+            var dst = new SpriteTemplate
             {
-                Type = src.Type,
-                Id = src.Id,
-                Position = src.Position,
+                Type = sprite.Type,
+                Id = sprite.Id,
+                Position = sprite.Position,
                 State = true
             };
 
-            switch (dst.Type)
+                //Adding optional properties
+            switch (sprite.Type)
             {
                 //Object / Item
                 case 0:
@@ -277,16 +367,16 @@ internal class Level
                     };
                     break;
             }
-
             Sprites.Add(dst);
         }
+            //If there was no problem loading map, we set the bool to true
         mapLoaded = true;
     }
+    //=========================================================================================
 
+    //WE DONT NEED IT
     public static void ClearLevelDatas()
     {
         mapLoaded = false;
     }
-
-    //=========================================================================================
 }
