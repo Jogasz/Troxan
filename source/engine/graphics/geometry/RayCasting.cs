@@ -11,6 +11,9 @@ namespace Engine;
 
 internal partial class RayCasting
 {
+    // Per-column wall depth (fish-eye corrected), updated every frame by Run().
+    public static float[] WallDepthBuffer { get; private set; } = Array.Empty<float>();
+
     public static void Run(
         Vector2i ClientSize,
         int FOV,
@@ -37,8 +40,13 @@ internal partial class RayCasting
 
         float rayAngle = Utils.NormalizeAngle(playerAngle + FOVStart);
 
+        if (WallDepthBuffer.Length != rayCount)
+            WallDepthBuffer = new float[rayCount];
+
         for (int i = 0; i < rayCount; i++)
         {
+            WallDepthBuffer[i] = float.PositiveInfinity;
+
             //Vertical wall check variables
             float offsetX = 0f,
                   offsetY = 0f,
@@ -252,55 +260,42 @@ internal partial class RayCasting
             float rayTilePosition = 0;
             int wallSide = 0;
             int wallType = 0;
+
             //If wall is vertical
             if (rayLength == verticalHypotenuse && verticalWallFound)
             {
-                //Ray's end's position relative to the tile
                 rayTilePosition = verticalRayHitY % tileSize;
 
-                //If wall side is left
                 if (rayAngle > MathX.Quadrant1 && rayAngle < MathX.Quadrant3)
-                {
                     wallSide = 1;
-                }
-                //If wall side is right
                 else if (rayAngle > MathX.Quadrant3 || rayAngle < MathX.Quadrant1)
-                {
                     wallSide = 2;
-                }
 
-                //What type of wall did the ray hit (if out of bounds, 0)
                 wallType = mapWalls[verticalRayCheckingRow, verticalRayCheckingCol];
             }
             //If wall is horizontal
             else if (rayLength == horizontalHypotenuse && horizontalWallFound)
             {
-                //Ray's end's position relative to the tile
                 rayTilePosition = horizontalRayHitX % tileSize;
 
-                //If wall side is top
                 if (rayAngle > 0 && rayAngle < Math.PI)
-                {
                     wallSide = 3;
-                }
-                //If wall side is bottom
                 else if (rayAngle > Math.PI && rayAngle < MathX.Quadrant4)
-                {
                     wallSide = 4;
-                }
 
-                //What type of wall did the ray hit (if out of bounds, 0)
                 wallType = mapWalls[horizontalRayCheckingRow, horizontalRayCheckingCol];
             }
-            //No wall hit
             else
             {
                 wallType = 0;
             }
 
-            float wallHeight = (float)((tileSize * minimumScreenSize) /
-                (rayLength * (float)Math.Cos(playerAngle -
-                (playerAngle + FOVStart + i * radBetweenRays))));
+            float correctedRayLength = MathF.Max(0.0001f, rayLength * MathF.Cos(playerAngle - rayAngle));
+
+            if (wallType != 0)
+                WallDepthBuffer[i] = correctedRayLength;
+
+            float wallHeight = (tileSize * minimumScreenSize) / correctedRayLength;
 
             LoadCeilingAttribs(
                 distanceShade,

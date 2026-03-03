@@ -20,7 +20,7 @@ internal partial class Engine
      */
 
     /* Buttons ID Translator
-     * 0. Campaing
+     * 0. Campaign
      * 1. Customs
      * 2. Settings
      * 3. Statistics
@@ -38,6 +38,11 @@ internal partial class Engine
      */
 
     Dictionary<MenuId, Action> menuHandlers;
+
+    //Title, Map name
+    Vector3 firstTextClr = (255f / 255f, 255f / 255f, 255f / 255f);
+    //Author, Descripton/ Created at
+    Vector3 secondTextClr = (96f / 255f, 89f / 255f, 82f / 255f);
 
     void InitMenuHandlers()
     {
@@ -71,7 +76,16 @@ internal partial class Engine
 
     void HandleCampaignMenu()
     {
-        buttonIds = new int[] { 7 };
+        buttonIds = new int[] { 12, 13, 11, 7 };
+
+        //Map name
+        LoadTextAttribs(
+            $"Level {storyCurrentId + 1}",
+            screenHorizontalOffset + (minimumScreenSize / 8.3f),
+            screenVerticalOffset + (minimumScreenSize / 1.49f),
+            2.5f,
+            new Vector3(firstTextClr)
+        );
 
         LoadMenuAttribs(1);
         LoadButtonAttribs(buttonIds);
@@ -86,10 +100,7 @@ internal partial class Engine
             225f / 255f,
             218f / 255f);
 
-        Vector3 descrClr = (
-            96f / 255f,
-            89f / 255f,
-            82f / 255f);
+        //============================???
 
         //Counter
         LoadTextAttribs(

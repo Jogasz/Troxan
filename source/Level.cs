@@ -62,42 +62,55 @@ internal class Level
         //To set the ID's to rooms, each path is given in sequence
     internal static readonly string[] roomPaths =
     {
-        $"{roomsDir}/spawn.json"
-        //$"{roomsDir}/enemy_easy_1.json",
-        //$"{roomsDir}/enemy_easy_2.json",
-        //$"{roomsDir}/enemy_easy_3.json",
-        //$"{roomsDir}/enemy_medium_1.json",
-        //$"{roomsDir}/enemy_medium_2.json",
-        //$"{roomsDir}/enemy_medium_3.json",
-        //$"{roomsDir}/enemy_hard_1.json",
-        //$"{roomsDir}/enemy_hard_2.json",
-        //$"{roomsDir}/enemy_hard_3.json",
-        //$"{roomsDir}/heal.json",
-        //$"{roomsDir}/tresaure_1.json",
-        //$"{roomsDir}/tresaure_2.json",
-        //$"{roomsDir}/tresaure_3.json",
-        //$"{roomsDir}/boss.json",
-        //$"{roomsDir}/portal.json"
+        $"{roomsDir}/spawn.json",
+        $"{roomsDir}/enemy_easy_1.json",
+        $"{roomsDir}/enemy_easy_2.json",
+        $"{roomsDir}/enemy_easy_3.json",
+        $"{roomsDir}/enemy_medium_1.json",
+        $"{roomsDir}/enemy_medium_2.json",
+        $"{roomsDir}/enemy_medium_3.json",
+        $"{roomsDir}/enemy_hard_1.json",
+        $"{roomsDir}/enemy_hard_2.json",
+        $"{roomsDir}/enemy_hard_3.json",
+        $"{roomsDir}/heal.json",
+        $"{roomsDir}/tresaure_1.json",
+        $"{roomsDir}/tresaure_2.json",
+        $"{roomsDir}/tresaure_3.json",
+        $"{roomsDir}/boss.json",
+        $"{roomsDir}/portal.json"
     };
+
+    internal const int roomSize = 7;
+    internal const int maxStoryLevelSize = 5;
 
         //List of custom map metadatas to contain pre-loaded infos for display of custom maps before loading actual map
     internal static readonly List<CustomMetaDataTemplate> CustomMetaDatas = new();
+        //Number of story levels found
+    internal static int storyLevelsNum { get; private set; }
 
         //Method for the first essential loading
-    internal static void FirstLoad(string storyFilePath, string customsRootDir)
+    internal static void FirstLoad(string storyRootDir, string customsRootDir)
     {
-        FirstLoadStory(storyFilePath);
+        FirstLoadStory(storyRootDir);
         FirstLoadCustoms(customsRootDir);
     }
 
-    static void FirstLoadStory(string storyFilePath)
+    static void FirstLoadStory(string storyRootDir)
     {
+        /* Directory paths
+         * - /info.txt
+         * - /levels/
+         */
+
+        string infoPath = $"{storyRootDir}/info.txt";
+        string levelsRootDir = $"{storyRootDir}/levels/";
+
         //Story maps completed status
         //==========================================================================
-        if (!File.Exists(storyFilePath))
-            throw new FileNotFoundException($" - File not found: '{storyFilePath}'");
+        if (!File.Exists(infoPath))
+            throw new FileNotFoundException($" - File not found: '{infoPath}'");
 
-        var lines = File.ReadAllLines(storyFilePath);
+        var lines = File.ReadAllLines(infoPath);
 
         levelFinished = new bool[lines.Length];
 
@@ -121,7 +134,8 @@ internal class Level
             var obj = JsonConvert.DeserializeObject<StoryRoomTemplate>(File.ReadAllText(filePath)) ??
                 throw new InvalidOperationException($" - Failed to deserialize: '{filePath}'");
 
-            if (obj.RoomWalls.GetLength(0) != 11 || obj.RoomWalls.GetLength(1) != 11) throw new InvalidOperationException($" - Room must be a size of 11x11!: '{filePath}'");
+            if (obj.RoomWalls.GetLength(0) != roomSize || obj.RoomWalls.GetLength(1) != roomSize)
+                throw new InvalidOperationException($" - Room must be a size of {roomSize}x{roomSize}!: '{filePath}'");
 
             int[,] roomWalls = obj.RoomWalls ?? throw new InvalidOperationException($" - Deserialized RoomWalls is null in: '{filePath}'");
 
@@ -169,30 +183,43 @@ internal class Level
                 Sprites = sprites
             });
 
-            Console.WriteLine($" - {filePath}:");
-            Console.WriteLine("RoomWalls");
-            for (int y = 0; y < StoryRooms[i].RoomWalls.GetLength(0); y++)
-            {
-                for (int x = 0; x < StoryRooms[i].RoomWalls.GetLength(1); x++)
-                {
-                    Console.Write(StoryRooms[i].RoomWalls[y, x]);
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine("Sprites");
-            foreach (var sprite in StoryRooms[i].Sprites ?? Enumerable.Empty<SpriteTemplate>())
-            {
-                Console.WriteLine("=============");
-                Console.WriteLine($"Type: {sprite.Type}");
-                Console.WriteLine($"Id: {sprite.Id}");
-                Console.WriteLine($"Position: {sprite.Position}");
-                Console.WriteLine($"State: {sprite.State}");
-                if (sprite.Interacted is not null) Console.WriteLine($"Interacted: {sprite.Interacted}");
-                if (sprite.Health is not null) Console.WriteLine($"Health: {sprite.Health}");
-                Console.WriteLine("=============");
-            }
-
+            //Console.WriteLine($" - {filePath}:");
+            //Console.WriteLine("RoomWalls");
+            //for (int y = 0; y < StoryRooms[i].RoomWalls.GetLength(0); y++)
+            //{
+            //    for (int x = 0; x < StoryRooms[i].RoomWalls.GetLength(1); x++)
+            //    {
+            //        Console.Write(StoryRooms[i].RoomWalls[y, x]);
+            //    }
+            //    Console.WriteLine();
+            //}
+            //Console.WriteLine("Sprites");
+            //foreach (var sprite in StoryRooms[i].Sprites ?? Enumerable.Empty<SpriteTemplate>())
+            //{
+            //    Console.WriteLine("=============");
+            //    Console.WriteLine($"Type: {sprite.Type}");
+            //    Console.WriteLine($"Id: {sprite.Id}");
+            //    Console.WriteLine($"Position: {sprite.Position}");
+            //    Console.WriteLine($"State: {sprite.State}");
+            //    if (sprite.Interacted is not null) Console.WriteLine($"Interacted: {sprite.Interacted}");
+            //    if (sprite.Health is not null) Console.WriteLine($"Health: {sprite.Health}");
+            //    Console.WriteLine("=============");
+            //}
         }
+        //==========================================================================
+
+        //Story map infos
+        //==========================================================================
+        if (!Directory.Exists(levelsRootDir))
+            throw new DirectoryNotFoundException($" - Directory jot found. '{levelsRootDir}'");
+
+        storyLevelsNum = 0;
+
+        foreach (var level in Directory.EnumerateFiles(levelsRootDir))
+        {
+            storyLevelsNum++;
+        }
+        //Console.WriteLine($"storyLevelsNum: {storyLevelsNum}");
         //==========================================================================
     }
 
@@ -295,7 +322,7 @@ internal class Level
 
     static void LoadStoryMap(int mapId)
     {
-        string filePath = $"assets/maps/story/{mapId}.json";
+        string filePath = $"assets/maps/story/levels/{mapId}.json";
 
             //If file doesn't exist
         if (!File.Exists(filePath))
@@ -304,6 +331,11 @@ internal class Level
             //Deserialize
         int[,] roomsIdArray = JsonConvert.DeserializeObject<int[,]>(File.ReadAllText(filePath)) ??
             throw new InvalidOperationException($" - Failed to deserialize: {filePath}");
+
+        if (roomsIdArray.GetLength(0) > maxStoryLevelSize || roomsIdArray.GetLength(1) > maxStoryLevelSize)
+            throw new InvalidOperationException($" - Story level room-id array can be maximum {maxStoryLevelSize}x{maxStoryLevelSize}: '{filePath}'");
+
+        ConstructStoryMap(roomsIdArray);
     }
 
     static void LoadCustomMap(int mapId)
@@ -370,6 +402,241 @@ internal class Level
             Sprites.Add(dst);
         }
             //If there was no problem loading map, we set the bool to true
+        mapLoaded = true;
+    }
+
+    static void ConstructStoryMap(int[,] roomsIdArray)
+    {
+        int srcRows = roomsIdArray.GetLength(0);
+        int srcCols = roomsIdArray.GetLength(1);
+        var tempSprites = new List<SpriteTemplate>();
+
+        bool spawnRoomFound = false;
+
+        bool[] rowHasRoom = new bool[srcRows];
+        bool[] colHasRoom = new bool[srcCols];
+
+        for (int y = 0; y < srcRows; y++)
+        {
+            for (int x = 0; x < srcCols; x++)
+            {
+                if (roomsIdArray[y, x] > 0)
+                {
+                    rowHasRoom[y] = true;
+                    colHasRoom[x] = true;
+                }
+            }
+        }
+
+        int[] rowIndexMap = new int[srcRows];
+        int[] colIndexMap = new int[srcCols];
+
+        for (int i = 0; i < srcRows; i++) rowIndexMap[i] = -1;
+        for (int i = 0; i < srcCols; i++) colIndexMap[i] = -1;
+
+        int rowsWithRoom = 0;
+        int colsWithRoom = 0;
+
+        for (int y = 0; y < srcRows; y++)
+        {
+            if (rowHasRoom[y])
+            {
+                rowIndexMap[y] = rowsWithRoom;
+                rowsWithRoom++;
+            }
+        }
+
+        for (int x = 0; x < srcCols; x++)
+        {
+            if (colHasRoom[x])
+            {
+                colIndexMap[x] = colsWithRoom;
+                colsWithRoom++;
+            }
+        }
+
+        int connectorRows = Math.Max(0, rowsWithRoom - 1);
+        int connectorCols = Math.Max(0, colsWithRoom - 1);
+
+        int mapRows = (rowsWithRoom * roomSize) + connectorRows;
+        int mapCols = (colsWithRoom * roomSize) + connectorCols;
+
+        int[,] tempMapWalls = new int[mapRows, mapCols];
+
+        if (rowsWithRoom == 0 || colsWithRoom == 0)
+        {
+            MapWalls = tempMapWalls;
+            Sprites = tempSprites;
+            Console.WriteLine("Constructed map is empty.");
+            return;
+        }
+
+        bool HasRoom(int y, int x)
+        {
+            return y >= 0 && y < srcRows && x >= 0 && x < srcCols && roomsIdArray[y, x] > 0;
+        }
+
+        void SetCell(int y, int x, int value)
+        {
+            if (y < 0 || y >= mapRows || x < 0 || x >= mapCols) return;
+            tempMapWalls[y, x] = value;
+        }
+
+        int center = roomSize / 2; // 11 -> 5
+
+        // 1) Szobák bemásolása + oldal szabály (ablak / nyitás)
+        for (int y = 0; y < srcRows; y++)
+        {
+            for (int x = 0; x < srcCols; x++)
+            {
+                int roomId = roomsIdArray[y, x];
+                if (roomId <= 0) continue;
+
+                if (roomId - 1 < 0 || roomId - 1 >= StoryRooms.Count)
+                    throw new InvalidOperationException($" - Invalid room id '{roomId}' at [{y}, {x}]");
+
+                int compactY = rowIndexMap[y];
+                int compactX = colIndexMap[x];
+
+                int baseY = compactY * (roomSize + 1);
+                int baseX = compactX * (roomSize + 1);
+
+                if (roomId == 1)
+                {
+                    if (spawnRoomFound)
+                        throw new InvalidOperationException(" - Multiple spawn rooms found (room id 1).");
+
+                    PlayerStarterPosition = new Vector2(baseX + center, baseY + center);
+                    spawnRoomFound = true;
+                }
+
+                int[,] roomWalls = StoryRooms[roomId - 1].RoomWalls;
+                var roomSprites = StoryRooms[roomId - 1].Sprites ?? new List<SpriteTemplate>();
+
+                for (int ry = 0; ry < roomSize; ry++)
+                {
+                    for (int rx = 0; rx < roomSize; rx++)
+                    {
+                        tempMapWalls[baseY + ry, baseX + rx] = roomWalls[ry, rx];
+                    }
+                }
+
+                foreach (var sprite in roomSprites)
+                {
+                    var dst = new SpriteTemplate
+                    {
+                        Type = sprite.Type,
+                        Id = sprite.Id,
+                        Position = new Vector2(baseX + sprite.Position.X, baseY + sprite.Position.Y),
+                        State = true,
+                        Interacted = sprite.Interacted,
+                        Health = sprite.Health
+                    };
+
+                    tempSprites.Add(dst);
+                }
+
+                bool hasTop = HasRoom(y - 1, x);
+                bool hasBottom = HasRoom(y + 1, x);
+                bool hasLeft = HasRoom(y, x - 1);
+                bool hasRight = HasRoom(y, x + 1);
+
+                // Nem csatlakozik -> ablak (5), csatlakozik -> nyitás (0)
+                SetCell(baseY, baseX + center, hasTop ? 0 : 5);
+                SetCell(baseY + roomSize - 1, baseX + center, hasBottom ? 0 : 5);
+                SetCell(baseY + center, baseX, hasLeft ? 0 : 5);
+                SetCell(baseY + center, baseX + roomSize - 1, hasRight ? 0 : 5);
+            }
+        }
+
+        if (!spawnRoomFound)
+            throw new InvalidOperationException(" - Spawn room not found (room id 1).");
+
+        // 2) Két szoba közti konnektorok (fix minta helyett orientációs szabály)
+        for (int y = 0; y < srcRows; y++)
+        {
+            for (int x = 0; x < srcCols; x++)
+            {
+                if (!HasRoom(y, x)) continue;
+
+                int compactY = rowIndexMap[y];
+                int compactX = colIndexMap[x];
+
+                int baseY = compactY * (roomSize + 1);
+                int baseX = compactX * (roomSize + 1);
+
+                // Jobb szomszéd: horizontális konnektor
+                if (HasRoom(y, x + 1))
+                {
+                    int yMid = baseY + center;
+                    int xRightEdge = baseX + roomSize - 1;
+                    int xGap = xRightEdge + 1;
+                    int xRightRoomLeftEdge = xRightEdge + 2;
+
+                    // Középen ajtó
+                    SetCell(yMid, xGap, 0);
+
+                    // Ajtó két oldalán fal (fent/lent)
+                    SetCell(yMid - 1, xGap, 1);
+                    SetCell(yMid + 1, xGap, 1);
+
+                    // Szobaélek igazítása
+                    SetCell(yMid, xRightEdge, 0);
+                    SetCell(yMid, xRightRoomLeftEdge, 0);
+
+                    SetCell(yMid - 1, xRightEdge, 1);
+                    SetCell(yMid + 1, xRightEdge, 1);
+                    SetCell(yMid - 1, xRightRoomLeftEdge, 1);
+                    SetCell(yMid + 1, xRightRoomLeftEdge, 1);
+                }
+
+                // Alsó szomszéd: vertikális konnektor
+                if (HasRoom(y + 1, x))
+                {
+                    int xMid = baseX + center;
+                    int yBottomEdge = baseY + roomSize - 1;
+                    int yGap = yBottomEdge + 1;
+                    int yBottomRoomTopEdge = yBottomEdge + 2;
+
+                    // Középen ajtó
+                    SetCell(yGap, xMid, 0);
+
+                    // Ajtó két oldalán fal (bal/jobb)
+                    SetCell(yGap, xMid - 1, 1);
+                    SetCell(yGap, xMid + 1, 1);
+
+                    // Szobaélek igazítása
+                    SetCell(yBottomEdge, xMid, 0);
+                    SetCell(yBottomRoomTopEdge, xMid, 0);
+
+                    SetCell(yBottomEdge, xMid - 1, 1);
+                    SetCell(yBottomEdge, xMid + 1, 1);
+                    SetCell(yBottomRoomTopEdge, xMid - 1, 1);
+                    SetCell(yBottomRoomTopEdge, xMid + 1, 1);
+                }
+            }
+        }
+
+        MapWalls = tempMapWalls;
+        int[,] tempMapCeiling = new int[mapRows, mapCols];
+        int[,] tempMapFloor = new int[mapRows, mapCols];
+
+        for (int y = 0; y < mapRows; y++)
+        {
+            for (int x = 0; x < mapCols; x++)
+            {
+                tempMapCeiling[y, x] = 3;
+                tempMapFloor[y, x] = 2;
+            }
+        }
+
+        MapCeiling = tempMapCeiling;
+        MapFloor = tempMapFloor;
+        Sprites = tempSprites;
+
+        PlayerStarterAngle = 0;
+        DistanceShade = 0;
+
         mapLoaded = true;
     }
     //=========================================================================================

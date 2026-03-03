@@ -11,6 +11,8 @@ layout (location = 1) in vec4 aUvRect;
 layout (location = 2) in float aSpriteType;
     //Sprite id
 layout (location = 3) in float aSpriteId;
+    //Sprite depth in camera-space
+layout (location = 4) in float aSpriteDepth;
 
 uniform mat4 uProjection;
 
@@ -19,6 +21,8 @@ out vec2 vUv;
 out float vSpriteType;
 
 out float vSpriteId;
+
+out float vSpriteDepth;
 //==============================================================
 
 void main()
@@ -53,4 +57,5 @@ void main()
 
     vSpriteType = aSpriteType;
     vSpriteId = aSpriteId;
+    vSpriteDepth = aSpriteDepth;
 }

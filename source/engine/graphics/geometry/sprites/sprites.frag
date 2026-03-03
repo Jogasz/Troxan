@@ -9,11 +9,19 @@ in float vSpriteType;
 
 in float vSpriteId;
 
+in float vSpriteDepth;
+
  //Vec4 that defines the final color output that we should calculate ourselves
 out vec4 FragColor;
 
  // AI CHANGE: use a sprite texture array so each sprite ID can sample its own texture
 uniform sampler2D uSprites[3];
+
+uniform sampler1D uWallDepthTex;
+
+uniform int uRayCount;
+
+uniform float uDistanceShade;
 
 uniform float uMinimumScreenSize;
 
@@ -42,6 +50,22 @@ void main()
 		gl_FragCoord.y < minimumScreenLimit.z ||
 		gl_FragCoord.y > minimumScreenLimit.w) discard;
 
-	FragColor = tex;
+	if (uRayCount > 0)
+	{
+		float xInView = gl_FragCoord.x - uScreenOffset.x;
+		float wallWidth = uMinimumScreenSize / float(uRayCount);
+		int rayIndex = int(floor(xInView / wallWidth));
+		rayIndex = clamp(rayIndex, 0, uRayCount - 1);
+
+		float wallDepth = texelFetch(uWallDepthTex, rayIndex, 0).r;
+
+		if (vSpriteDepth >= wallDepth)
+			discard;
+	}
+
+	float distanceShade = uDistanceShade / 255;
+	float shade = vSpriteDepth * distanceShade;
+
+	FragColor = tex - shade;
 }
 //==============================================================

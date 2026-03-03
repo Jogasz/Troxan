@@ -30,7 +30,7 @@ internal sealed class Textures : IDisposable
     {
         //Objects atlas
         "assets/textures/map/sprites/objects_atlas.png",
-        //Ietms atlas
+        //Items atlas
         "assets/textures/map/sprites/items_atlas.png",
         //Enemies atlas
         "assets/textures/map/sprites/enemies_atlas.png",
@@ -56,10 +56,13 @@ internal sealed class Textures : IDisposable
         //"assets/textures/gui/containers/mainmenu.png",
     };
 
-    //static readonly string[] HUDPaths =
-    //{
-
-    //};
+    static readonly string[] hudPaths =
+    {
+        "assets/textures/gui/hudTex/running_effect.png",
+        "assets/textures/gui/hudTex/sword.png",
+        "assets/textures/gui/hudTex/vignette.png",
+        "assets/textures/gui/hudTex/container.png"
+    };
 
     static readonly string[] buttonPaths =
     {
@@ -75,7 +78,7 @@ internal sealed class Textures : IDisposable
     public static List<Textures> Walls = new();
     public static List<Textures> Sprites = new();
     public static List<Textures> Containers = new();
-    //public static List<Textures> HUD = new();
+    public static List<Textures> HUD = new();
     public static List<Textures> Buttons = new();
     public static List<Textures> Fonts = new();
 
@@ -93,14 +96,14 @@ internal sealed class Textures : IDisposable
         if (Walls.Count !=0) Walls.Clear();
         if (Sprites.Count !=0) Sprites.Clear();
         if (Containers.Count !=0) Containers.Clear();
-        //if (HUD.Count !=0) HUD.Clear();
+        if (HUD.Count !=0) HUD.Clear();
         if (Buttons.Count !=0) Buttons.Clear();
         if (Fonts.Count !=0) Fonts.Clear();
 
         LoadInto(Walls, wallPaths);
         LoadInto(Sprites, spritePaths);
         LoadInto(Containers, containerPaths);
-        //LoadInto(HUD, hudPaths);
+        LoadInto(HUD, hudPaths);
         LoadInto(Buttons, buttonPaths);
         LoadInto(Fonts, fontPaths);
     }

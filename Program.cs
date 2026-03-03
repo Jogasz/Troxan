@@ -26,9 +26,11 @@ public class Program
         //Loading needed level infos, NOT LEVELS (More exception handling is needed)
         try
         {
-            string storyFilePath = "assets/maps/story/info.txt";
+            //Story directory
+            string storyRootDir = "assets/maps/story";
+            //Customs directory
             string customsRootDir = "assets/maps/customs";
-            Level.FirstLoad(storyFilePath, customsRootDir);
+            Level.FirstLoad(storyRootDir, customsRootDir);
         }
         catch (FileNotFoundException NoFileEx)
         {
@@ -39,7 +41,9 @@ public class Program
             Console.WriteLine($"Level:\n{ex}");
         }
 
-        Console.WriteLine("Breakpoint");
+        //Level.Load(0, 1);
+
+        //Console.WriteLine("Breakpoint");
 
         Engine.Engine engine = new Engine.Engine(800, 800, "Troxan");
         engine.Run();

@@ -112,9 +112,6 @@ internal partial class Engine : GameWindow
 
         pitch =0f;
 
-        // Depends on map size
-        //renderDistance = Level.DistanceShade;
-
         // Upload new integer maps to GPU
         Textures.LoadMapTextures(mapWalls, mapCeiling, mapFloor);
     }
@@ -275,6 +272,9 @@ internal partial class Engine : GameWindow
 
         //Sprites
         LoadSpriteAttribs();
+
+        //HUD
+        LoadHudAttribs();
 
         float lineSpacing = minimumScreenSize /95f;
         float lineHeight = minimumScreenSize /50f;

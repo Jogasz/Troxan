@@ -54,22 +54,24 @@ internal partial class Engine
     const float buttonsAtlasWidth = 678f;
     const float buttonsAtlasHeight = 672f;
 
+    static int storyCurrentId = 0;
     static int customsCurrentId = 0;
 
-    private void CustomsCurrentIdChanger(int buttonId)
+    private int CurrentIdChanger(int buttonId, int currentId, int maxLimit)
     {
-        int minLimit = 0;
-        int maxLimit = Level.CustomMetaDatas.Count - 1;
+        //int minLimit = 0;
+        //int maxLimit = Level.CustomMetaDatas.Count - 1;
 
         switch (buttonId)
         {
             case 12:
-                if (customsCurrentId != minLimit) customsCurrentId -= 1;
+                if (currentId != 0) currentId -= 1;
                 break;
             case 13:
-                if (customsCurrentId != maxLimit) customsCurrentId += 1;
+                if (currentId != maxLimit) currentId += 1;
                 break;
         }
+        return currentId;
     }
 
     //Validating hover
@@ -93,7 +95,7 @@ internal partial class Engine
             {
                 //Campaign
                 case 0:
-                    if (Level.mapLoaded) currentMenu = MenuId.None;
+                    currentMenu = MenuId.Campaign;
                     break;
                 //Customs
                 case 1:
@@ -119,8 +121,27 @@ internal partial class Engine
         {
             switch (id)
             {
+                //Play selected map
+                case 11:
+                    Console.WriteLine($"storyCurrentId: {storyCurrentId}");
+                    Level.Load(0, storyCurrentId + 1);
+
+                    if (!Level.mapLoaded)
+                        break;
+
+                    ApplyLevel();
+                    currentMenu = MenuId.None;
+                    break;
+                //Back
                 case 7:
                     currentMenu = MenuId.Main;
+                    break;
+                //Left arrow
+                case 12:
+                //Right arrow
+                case 13:
+                    int maxLimit = Level.storyLevelsNum - 1;
+                    storyCurrentId = CurrentIdChanger(id, storyCurrentId, maxLimit);
                     break;
             }
         }
@@ -148,7 +169,8 @@ internal partial class Engine
                 case 12:
                 //Right arrow
                 case 13:
-                    CustomsCurrentIdChanger(id);
+                    int maxLimit = Level.CustomMetaDatas.Count - 1;
+                    customsCurrentId = CurrentIdChanger(id, customsCurrentId, maxLimit);
                     break;
             }
         }

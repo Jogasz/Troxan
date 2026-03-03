@@ -30,15 +30,11 @@ internal partial class Engine
      * - ID 5: Diamond Chest
      * - ID 6: Void Chest
      * Type 1 (Pick-up items)
-     * - ID 4: Heal
-     * - ID 5: Ammo (No guns in game right now)
+     * - ID 0: Heal
+     * - ID 1: Ammo (No guns in game right now)
      * Type 2 (Enemies)
-     * - ID 6: Void Sentinel - Initiate (Level 1)
-     * - ID 7: Void Sentinel - Enforcer (Level 2)
-     * - ID 8: Void Sentinel - Reaver   (Level 3)
-     * - ID 9: Sentinel Prime - K'hrovan
-     * - ID 10: Jiggler
-     * - ID 11: Korvax
+     * - ID 0: Jiggler
+     * - ID 1: Korvax
      */
 
     //Types are used to seperate the functionality of the sprites
@@ -120,6 +116,8 @@ internal partial class Engine
         //Building draw order to simulate distance
         var drawOrder = new int[spritesCount];
         var spriteDist = new float[spritesCount];
+        float maxSpriteDistancePx = renderDistance * tileSize;
+        float maxSpriteDistanceSq = maxSpriteDistancePx * maxSpriteDistancePx;
 
         for (int i = 0; i < spritesCount; i++)
         {
@@ -137,6 +135,10 @@ internal partial class Engine
         for (int oi = 0; oi < drawOrder.Length; oi++)
         {
             int i = drawOrder[oi];
+
+            //Skip sprites outside render distance
+            if (spriteDist[i] > maxSpriteDistanceSq)
+                continue;
 
             //If sprite is turned off, skip
             if (Level.Sprites[i].State == false) continue;
@@ -179,9 +181,39 @@ internal partial class Engine
                 quadY2 > screenVerticalOffset + minimumScreenSize)
                 continue;
 
+            // Occlusion test against per-ray wall depth buffer.
+            // If all columns covered by this sprite have a nearer wall, skip sprite entirely.
+            float clampedX1 = MathF.Max(quadX1, screenHorizontalOffset);
+            float clampedX2 = MathF.Min(quadX2, screenHorizontalOffset + minimumScreenSize - 0.001f);
+
+            int firstRay = (int)MathF.Floor((clampedX1 - screenHorizontalOffset) / wallWidth);
+            int lastRay = (int)MathF.Floor((clampedX2 - screenHorizontalOffset) / wallWidth);
+
+            firstRay = Math.Clamp(firstRay, 0, rayCount - 1);
+            lastRay = Math.Clamp(lastRay, 0, rayCount - 1);
+
+            float spriteDepth = transCamera.Y;
+            float[] wallDepth = RayCasting.WallDepthBuffer;
+
+            if (wallDepth.Length == rayCount)
+            {
+                bool visibleInAnyColumn = false;
+
+                for (int ray = firstRay; ray <= lastRay; ray++)
+                {
+                    if (spriteDepth < wallDepth[ray])
+                    {
+                        visibleInAnyColumn = true;
+                        break;
+                    }
+                }
+
+                if (!visibleInAnyColumn)
+                    continue;
+            }
+
             int sType = Level.Sprites[i].Type;
             int sId = Level.Sprites[i].Id;
-            Vector2 sPos = Level.Sprites[i].Position;
 
             //=======================
             //If sprite is an object
@@ -196,7 +228,8 @@ internal partial class Engine
                     quadX1,
                     quadX2,
                     quadY1,
-                    quadY2);
+                    quadY2,
+                    spriteDepth);
             }
 
             //=======================
@@ -212,7 +245,8 @@ internal partial class Engine
                     quadX1,
                     quadX2,
                     quadY1,
-                    quadY2);
+                    quadY2,
+                    spriteDepth);
             }
 
             //=======================
@@ -228,7 +262,8 @@ internal partial class Engine
                     quadX1,
                     quadX2,
                     quadY1,
-                    quadY2);
+                    quadY2,
+                    spriteDepth);
             }
         }
     }
@@ -241,7 +276,8 @@ internal partial class Engine
         float quadX1,
         float quadX2,
         float quadY1,
-        float quadY2
+        float quadY2,
+        float spriteDepth
         )
     {
         //Default texture UV rect's width
@@ -303,7 +339,8 @@ internal partial class Engine
         u1,
         v1,
         sType,
-        sId);
+        sId,
+        spriteDepth);
     }
 
     void HandleItems(
@@ -314,7 +351,8 @@ internal partial class Engine
         float quadX1,
         float quadX2,
         float quadY1,
-        float quadY2)
+        float quadY2,
+        float spriteDepth)
     {
         // Horizontal animation based on sprite type config (one row per type)
         float u0 = 0f;
@@ -342,7 +380,8 @@ internal partial class Engine
         u1,
         v1,
         sType,
-        sId);
+        sId,
+        spriteDepth);
     }
 
     //Enemy settings
@@ -357,11 +396,80 @@ internal partial class Engine
     float enemyAttackStopDistance = 1f;
     //Enemy speed (pixels / sec)
     float enemyMovementSpeed = 30f;
+    //Enemy collision radius (slightly smaller than full tile so 1-tile corridors are passable)
+    float enemyCollisionRadius => tileSize * 0.35f;
     //=========================================================================================
 
     //Enemy runtime state
     //0: idle,1: walk,2: attack
     static readonly Dictionary<int, int> enemyAnimState = new();
+
+    bool IsEnemyMoveBlockedX(Vector2 posPx, float moveX)
+    {
+        float radius = enemyCollisionRadius;
+        float nextXPlus = posPx.X + radius + moveX;
+        float nextXMinus = posPx.X - radius + moveX;
+
+        if (nextXMinus <= 0f || nextXPlus >= (mapWalls.GetLength(1) * tileSize))
+            return true;
+
+        int yPlus = (int)((posPx.Y + radius) / tileSize);
+        int yMinus = (int)((posPx.Y - radius) / tileSize);
+        int xPlus = (int)(nextXPlus / tileSize);
+        int xMinus = (int)(nextXMinus / tileSize);
+
+        return mapWalls[yPlus, xPlus] > 0 ||
+               mapWalls[yPlus, xMinus] > 0 ||
+               mapWalls[yMinus, xPlus] > 0 ||
+               mapWalls[yMinus, xMinus] > 0;
+    }
+
+    bool IsEnemyMoveBlockedY(Vector2 posPx, float moveY)
+    {
+        float radius = enemyCollisionRadius;
+        float nextYPlus = posPx.Y + radius + moveY;
+        float nextYMinus = posPx.Y - radius + moveY;
+
+        if (nextYMinus <= 0f || nextYPlus >= (mapWalls.GetLength(0) * tileSize))
+            return true;
+
+        int yPlus = (int)(nextYPlus / tileSize);
+        int yMinus = (int)(nextYMinus / tileSize);
+        int xPlus = (int)((posPx.X + radius) / tileSize);
+        int xMinus = (int)((posPx.X - radius) / tileSize);
+
+        return mapWalls[yPlus, xPlus] > 0 ||
+               mapWalls[yMinus, xPlus] > 0 ||
+               mapWalls[yPlus, xMinus] > 0 ||
+               mapWalls[yMinus, xMinus] > 0;
+    }
+
+    bool IsEnemyOverlappingOtherEnemy(int selfIndex, Vector2 candidatePosPx)
+    {
+        float minDistance = enemyCollisionRadius * 2f;
+        float minDistanceSq = minDistance * minDistance;
+
+        for (int j = 0; j < Level.Sprites.Count; j++)
+        {
+            if (j == selfIndex) continue;
+
+            var other = Level.Sprites[j];
+            if (!other.State || other.Type != 2) continue;
+
+            Vector2 otherPosPx = (
+                (other.Position.X + 0.5f) * tileSize,
+                (other.Position.Y + 0.5f) * tileSize);
+
+            float dx = candidatePosPx.X - otherPosPx.X;
+            float dy = candidatePosPx.Y - otherPosPx.Y;
+            float distSq = (dx * dx) + (dy * dy);
+
+            if (distSq < minDistanceSq)
+                return true;
+        }
+
+        return false;
+    }
 
     void HandleEnemies(
         int sType,
@@ -371,7 +479,8 @@ internal partial class Engine
         float quadX1,
         float quadX2,
         float quadY1,
-        float quadY2)
+        float quadY2,
+        float spriteDepth)
     {
         //Enemy -> player distance (pixel)
         float dx = playerPosition.X - spriteWorldPos.X;
@@ -426,10 +535,23 @@ internal partial class Engine
                 dir.Normalize();
 
             float step = enemyMovementSpeed * deltaTime;
+            float moveX = dir.X * step;
+            float moveY = dir.Y * step;
 
             //Move in tile-space units (Level sprites store tile coords)
             Vector2 enemyPosPx = spriteWorldPos;
-            enemyPosPx += dir * step;
+
+            Vector2 candidateX = (enemyPosPx.X + moveX, enemyPosPx.Y);
+
+            if (!IsEnemyMoveBlockedX(enemyPosPx, moveX) &&
+                !IsEnemyOverlappingOtherEnemy(i, candidateX))
+                enemyPosPx.X += moveX;
+
+            Vector2 candidateY = (enemyPosPx.X, enemyPosPx.Y + moveY);
+
+            if (!IsEnemyMoveBlockedY(enemyPosPx, moveY) &&
+                !IsEnemyOverlappingOtherEnemy(i, candidateY))
+                enemyPosPx.Y += moveY;
 
             Level.Sprites[i].Position = (enemyPosPx.X / tileSize - 0.5f, enemyPosPx.Y / tileSize - 0.5f);
         }
@@ -479,7 +601,8 @@ internal partial class Engine
         u1,
         v1,
         sType,
-        sId);
+        sId,
+        spriteDepth);
     }
 
     //Universal vertex attribute uploader
@@ -493,7 +616,8 @@ internal partial class Engine
         float u1,
         float v1,
         int sType,
-        int sId)
+        int sId,
+        float spriteDepth)
     {
         ShaderHandler.SpriteVertexAttribList.AddRange(new float[]
         {
@@ -506,7 +630,8 @@ internal partial class Engine
             u1,
             v1,
             sType,
-            sId
+            sId,
+            spriteDepth
         });
     }
 }

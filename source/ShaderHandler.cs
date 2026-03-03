@@ -213,6 +213,11 @@ internal partial class ShaderHandler
             "source/engine/graphics/gui/menus/containers/menus.frag",
             projection);
 
+        LoadHudShader(
+            "source/engine/graphics/gui/hud/hud.vert",
+            "source/engine/graphics/gui/hud/hud.frag",
+            projection);
+
         LoadButtonsShader(
             "source/engine/graphics/gui/menus/buttons/buttons.vert",
             "source/engine/graphics/gui/menus/buttons/buttons.frag",
@@ -239,6 +244,7 @@ internal partial class ShaderHandler
         UpdateFloorUniforms(ClientSize, minimumScreenSize);
         UpdateSpriteUniforms(minimumScreenSize, screenOffset);
         UpdateMenusUniforms();
+        UpdateHudUniforms();
         UpdateButtonsUniforms();
         UpdateButtonsUniforms();
         UpdateTextsUniforms();
@@ -253,6 +259,7 @@ internal partial class ShaderHandler
         LoadBufferAndClearFloor();
         LoadBufferAndClearSprite();
         LoadBufferAndClearMenus();
+        LoadBufferAndClearHud();
         LoadBufferAndClearButtons();
         LoadBufferAndClearTexts();
     }
@@ -270,6 +277,7 @@ internal partial class ShaderHandler
         DrawWalls(walltexCount, pitch);
         DrawFloor(walltexCount, wallWidth, playerPosition, playerAngle, pitch);
         DrawSprite();
+        DrawHud();
         DrawTexts();
     }
 
@@ -283,6 +291,7 @@ internal partial class ShaderHandler
         WallShader?.Dispose();
         SpriteShader?.Dispose();
         MenusShader?.Dispose();
+        HudShader?.Dispose();
         ButtonsShader?.Dispose();
         TextsShader?.Dispose();
     }
