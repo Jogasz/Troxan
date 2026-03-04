@@ -14,7 +14,12 @@ namespace Engine;
 
 internal partial class Engine : GameWindow
 {
-    internal bool isSaveState = false;
+    //Debug
+    int tempPlayerMaxHealth = 150;
+    int tempPlayerCurrentHealth = 89;
+    int tempPlayerMaxStamina = 100;
+    int tempPlayerCurrentStamina = 40;
+    int tempCurrentCoins = 342;
 
     //Settings
     int FOV = Settings.Graphics.FOV;
@@ -280,43 +285,30 @@ internal partial class Engine : GameWindow
         float lineHeight = minimumScreenSize /50f;
 
         //Text overlay: update only once per second
+        //Health
         LoadTextAttribs(
-            $"FPS: {displayedFPS}",
-            screenHorizontalOffset + (minimumScreenSize /80f),
-            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f),
+            $"{tempPlayerMaxHealth}/{tempPlayerCurrentHealth}",
+            screenHorizontalOffset + (minimumScreenSize /10f),
+            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /25f),
             1f,
             new Vector3(1f,1f,1f)
         );
 
+        //Stamina
         LoadTextAttribs(
-            $"X: {playerPosition.X}",
-            screenHorizontalOffset + (minimumScreenSize /80f),
-            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f) - lineHeight - lineSpacing,
+            $"{tempPlayerMaxStamina}/{tempPlayerCurrentStamina}",
+            screenHorizontalOffset + (minimumScreenSize / 10f),
+            screenVerticalOffset + minimumScreenSize - (minimumScreenSize / 7.7f),
             1f,
-            new Vector3(1f,1f,1f)
+            new Vector3(1f, 1f, 1f)
         );
 
+        //Coins
         LoadTextAttribs(
-            $"Y: {playerPosition.Y}",
-            screenHorizontalOffset + (minimumScreenSize /80f),
-            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f) - (lineHeight *2) - (lineSpacing *2),
-            1f,
-            new Vector3(1f,1f,1f)
-        );
-
-        LoadTextAttribs(
-            $"Player Angle: {playerAngle}",
-            screenHorizontalOffset + (minimumScreenSize /80f),
-            screenVerticalOffset + minimumScreenSize - (minimumScreenSize /80f) - (lineHeight *3) - (lineSpacing *3),
-            1f,
-            new Vector3(1f,1f,1f)
-        );
-
-        LoadTextAttribs(
-            $"Runtime: {stopwatch.Elapsed:mm\\:ss}",
-            screenHorizontalOffset + (minimumScreenSize / 80f),
-            screenVerticalOffset + minimumScreenSize - (minimumScreenSize / 80f) - (lineHeight * 4) - (lineSpacing * 4),
-            1f,
+            $"{tempCurrentCoins}",
+            screenHorizontalOffset + (minimumScreenSize / 1.23f),
+            screenVerticalOffset + minimumScreenSize - (minimumScreenSize / 3.15f),
+            1.5f,
             new Vector3(1f, 1f, 1f)
         );
 

@@ -8,8 +8,8 @@
   "Graphics": {
     "FOV": 55,
     "RayCount": 1000,
-    "RenderDistance": 10,
-    "DistanceShade": 20
+    "RenderDistance": 20,
+    "DistanceShade": 10
   },
   "Gameplay": {
     "TileSize": 50

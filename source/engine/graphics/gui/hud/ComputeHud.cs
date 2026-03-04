@@ -24,7 +24,7 @@ internal partial class Engine
             _runningHudAnimTime += deltaTime;
 
             int frameCount = 8;
-            float fps = 12f;
+            float fps = 20f;
             int frame = (int)(_runningHudAnimTime * fps) % frameCount;
 
             float u0 = frame / 8f;
