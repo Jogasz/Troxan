@@ -11,6 +11,8 @@ in float vSpriteId;
 
 in float vSpriteDepth;
 
+in float vDamageOverlayAlpha;
+
  //Vec4 that defines the final color output that we should calculate ourselves
 out vec4 FragColor;
 
@@ -62,6 +64,9 @@ void main()
 		if (vSpriteDepth >= wallDepth)
 			discard;
 	}
+
+	if (vDamageOverlayAlpha > 0.0)
+		tex.rgb = mix(tex.rgb, vec3(1.0, 0.0, 0.0), clamp(vDamageOverlayAlpha, 0.0, 1.0));
 
 	float distanceShade = uDistanceShade / 255;
 	float shade = vSpriteDepth * distanceShade;

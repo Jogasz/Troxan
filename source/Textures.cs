@@ -61,7 +61,8 @@ internal sealed class Textures : IDisposable
         "assets/textures/gui/hudTex/running_effect.png",
         "assets/textures/gui/hudTex/sword.png",
         "assets/textures/gui/hudTex/vignette.png",
-        "assets/textures/gui/hudTex/container.png"
+    "assets/textures/gui/hudTex/container.png",
+    "assets/textures/gui/hudTex/attack_slash.png"
     };
 
     static readonly string[] buttonPaths =

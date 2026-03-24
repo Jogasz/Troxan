@@ -15,6 +15,8 @@ internal partial class ShaderHandler
     //Containers
     public static List<float> HudVertexAttribList { get; set; } = new List<float>();
     static float[]? HudVertices { get; set; }
+    internal static float HudDamageOverlayAlpha { get; set; }
+    internal static float HudPickupOverlayAlpha { get; set; }
 
     internal static void LoadHudShader(
         string vertexPath,
@@ -56,12 +58,16 @@ internal partial class ShaderHandler
         //Uniforms
         HudShader.Use();
         HudShader.SetMatrix4("uProjection", projection);
+        HudShader.SetFloat("uDamageOverlayAlpha", 0f);
+        HudShader.SetFloat("uPickupOverlayAlpha", 0f);
     }
 
     internal static void UpdateHudUniforms()
     {
         HudShader?.Use();
         HudShader?.SetMatrix4("uProjection", projection);
+        HudShader?.SetFloat("uDamageOverlayAlpha", HudDamageOverlayAlpha);
+        HudShader?.SetFloat("uPickupOverlayAlpha", HudPickupOverlayAlpha);
     }
 
     internal static void LoadBufferAndClearHud()
@@ -83,6 +89,8 @@ internal partial class ShaderHandler
     internal static void DrawHud()
     {
         HudShader?.Use();
+        HudShader?.SetFloat("uDamageOverlayAlpha", HudDamageOverlayAlpha);
+        HudShader?.SetFloat("uPickupOverlayAlpha", HudPickupOverlayAlpha);
 
         for (int i = 0; i < Textures.HUD.Count; i++)
         {

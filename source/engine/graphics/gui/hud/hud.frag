@@ -6,13 +6,27 @@
 in float vTexIndex;
 in vec2 vUv;
 
-uniform sampler2D uTextures[4];
+uniform sampler2D uTextures[5];
+uniform float uDamageOverlayAlpha;
+uniform float uPickupOverlayAlpha;
 
 out vec4 FragColor;
 //==============================================================
 void main()
 {
-	if (vTexIndex < 0.0) discard;
+   if (vTexIndex == -1.0) discard;
+
+	if (vTexIndex == -2.0)
+	{
+		FragColor = vec4(1.0, 0.0, 0.0, uDamageOverlayAlpha);
+		return;
+	}
+
+	if (vTexIndex == -3.0)
+	{
+		FragColor = vec4(1.0, 1.0, 1.0, uPickupOverlayAlpha);
+		return;
+	}
 
 	vec4 tex = texture(uTextures[int(vTexIndex)], vUv);
 

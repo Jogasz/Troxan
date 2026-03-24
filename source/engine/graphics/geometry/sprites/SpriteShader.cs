@@ -34,25 +34,29 @@ internal partial class ShaderHandler
         GL.BindBuffer(BufferTarget.ArrayBuffer, SpriteVBO);
         //Attribute 0 (Vertices)
         GL.EnableVertexAttribArray(0);
-        GL.VertexAttribPointer(0, 4, VertexAttribPointerType.Float, false, 11 * sizeof(float), 0);
+        GL.VertexAttribPointer(0, 4, VertexAttribPointerType.Float, false, 12 * sizeof(float), 0);
         //Attribute 1 (Texture UV)
         GL.EnableVertexAttribArray(1);
-        GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, 11 * sizeof(float), 4 * sizeof(float));
+        GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, 12 * sizeof(float), 4 * sizeof(float));
         //Attribute2 (Spite type)
         GL.EnableVertexAttribArray(2);
-        GL.VertexAttribPointer(2, 1, VertexAttribPointerType.Float, false, 11 * sizeof(float), 8 * sizeof(float));
+        GL.VertexAttribPointer(2, 1, VertexAttribPointerType.Float, false, 12 * sizeof(float), 8 * sizeof(float));
         //Attribute3 (Sprite id)
         GL.EnableVertexAttribArray(3);
-        GL.VertexAttribPointer(3, 1, VertexAttribPointerType.Float, false, 11 * sizeof(float), 9 * sizeof(float));
+        GL.VertexAttribPointer(3, 1, VertexAttribPointerType.Float, false, 12 * sizeof(float), 9 * sizeof(float));
         //Attribute4 (Sprite depth)
         GL.EnableVertexAttribArray(4);
-        GL.VertexAttribPointer(4, 1, VertexAttribPointerType.Float, false, 11 * sizeof(float), 10 * sizeof(float));
+        GL.VertexAttribPointer(4, 1, VertexAttribPointerType.Float, false, 12 * sizeof(float), 10 * sizeof(float));
+        //Attribute5 (Sprite damage overlay alpha)
+        GL.EnableVertexAttribArray(5);
+        GL.VertexAttribPointer(5, 1, VertexAttribPointerType.Float, false, 12 * sizeof(float), 11 * sizeof(float));
         //Divisor
         GL.VertexAttribDivisor(0, 1);
         GL.VertexAttribDivisor(1, 1);
         GL.VertexAttribDivisor(2, 1);
         GL.VertexAttribDivisor(3, 1);
         GL.VertexAttribDivisor(4, 1);
+        GL.VertexAttribDivisor(5, 1);
         //Disable face culling to avoid accidentally removing one triangle
         GL.Disable(EnableCap.CullFace);
         //Unbind for safety
@@ -144,7 +148,7 @@ internal partial class ShaderHandler
         //Binding and drawing
         GL.BindVertexArray(SpriteVAO);
         int spriteLen = SpriteVertices?.Length ?? 0;
-        int instanceCount = spriteLen / 11;
+        int instanceCount = spriteLen / 12;
         if (instanceCount > 0)
         {
             GL.DrawArraysInstanced(PrimitiveType.TriangleStrip, 0, 4, instanceCount);

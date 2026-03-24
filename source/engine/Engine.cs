@@ -16,10 +16,16 @@ internal partial class Engine : GameWindow
 {
     //Debug
     int tempPlayerMaxHealth = 150;
-    int tempPlayerCurrentHealth = 89;
+    int tempPlayerCurrentHealth = 150;
     int tempPlayerMaxStamina = 100;
     int tempPlayerCurrentStamina = 40;
-    int tempCurrentCoins = 342;
+    int tempCurrentCoins = 0;
+
+    //Sprint / stamina runtime
+    float playerCurrentStaminaRuntime;
+    bool isPlayerSprinting;
+    bool sprintNeedsShiftRelease;
+    float sprintRegenDelayTimer;
 
     //Settings
     int FOV = Settings.Graphics.FOV;
@@ -117,8 +123,40 @@ internal partial class Engine : GameWindow
 
         pitch =0f;
 
+        ResetPlayerRuntimeStats();
+        ResetCombatRuntimeStates();
+        ResetHudCombatStates();
+
         // Upload new integer maps to GPU
         Textures.LoadMapTextures(mapWalls, mapCeiling, mapFloor);
+    }
+
+    void ResetPlayerRuntimeStats()
+    {
+        // Initialize max/current health and stamina from Settings if available
+        tempPlayerMaxHealth = Settings.Player.Health > 0 ? Settings.Player.Health : tempPlayerMaxHealth;
+        tempPlayerMaxStamina = Settings.Player.Stamina > 0 ? Settings.Player.Stamina : tempPlayerMaxStamina;
+
+        tempPlayerCurrentHealth = tempPlayerMaxHealth;
+        tempPlayerCurrentStamina = tempPlayerMaxStamina;
+
+        // Load coins from settings (may have been fetched from server)
+        tempCurrentCoins = Settings.Player.Coins;
+
+        playerCurrentStaminaRuntime = tempPlayerMaxStamina;
+        isPlayerSprinting = false;
+        sprintNeedsShiftRelease = false;
+        sprintRegenDelayTimer = 0f;
+    }
+
+    void HandlePlayerDeath()
+    {
+        currentMenu = MenuId.Main;
+        Level.ClearLevelDatas();
+
+        ResetPlayerRuntimeStats();
+        ResetCombatRuntimeStates();
+        ResetHudCombatStates();
     }
 
     protected override void OnLoad()
@@ -246,7 +284,9 @@ internal partial class Engine : GameWindow
         }
 
         //Handling controls
+        isPlayerSprinting = false;
         Controls(KeyboardState, MouseState);
+        UpdateSprintStamina(KeyboardState);
 
         //Allowed screen's color
         LoadWindowAttribs();

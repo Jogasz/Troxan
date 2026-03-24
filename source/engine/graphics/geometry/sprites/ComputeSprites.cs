@@ -2,6 +2,7 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 using Sources;
 using Shaders;
@@ -43,6 +44,13 @@ internal partial class Engine
     //Animation running time accumulator
     static float _spriteAnimTime;
 
+    //Combat
+    const int playerBaseDamage = 15;
+    const int enemyBaseDamage = 10;
+    const float enemyDamageOverlayDuration = 0.15f;
+    const float enemyDamageOverlayMaxAlpha = 0.45f;
+    const int enemyKillRewardCoins = 4;
+
     struct SpriteAnimConfig
     {
         public int FrameCount;
@@ -80,6 +88,18 @@ internal partial class Engine
     {
         // Advance sprite animation time (seconds)
         _spriteAnimTime += deltaTime;
+
+        //Enemy damage overlay timers
+        var enemyOverlayKeys = new List<int>(enemyDamageOverlayTimers.Keys);
+        foreach (int key in enemyOverlayKeys)
+        {
+            float nextTimer = enemyDamageOverlayTimers[key] - deltaTime;
+
+            if (nextTimer <= 0f)
+                enemyDamageOverlayTimers.Remove(key);
+            else
+                enemyDamageOverlayTimers[key] = nextTimer;
+        }
 
         //Number of sprites on the map
         int spritesCount = Level.Sprites.Count;
@@ -308,9 +328,58 @@ internal partial class Engine
             float dy = spriteWorldPos.Y - playerPosition.Y;
             bool isNear = (dx * dx + dy * dy) <= (interactDist * interactDist);
 
+            Vector2 toChest = (dx, dy);
+            if (toChest.LengthSquared > 1e-6f)
+                toChest.Normalize();
+
+            Vector2 playerForward = (MathF.Cos(playerAngle), MathF.Sin(playerAngle));
+            bool isFacing = Vector2.Dot(playerForward, toChest) > 0.45f;
+
             //First time chest opening
-            if (Level.Sprites[i].Interacted == false && isNear && KeyboardState.IsKeyPressed(Keys.E))
+            if (Level.Sprites[i].Interacted == false && isNear && isFacing && KeyboardState.IsKeyPressed(Keys.E))
+            {
                 Level.Sprites[i].Interacted = true;
+
+                int reward = sId switch
+                {
+                    //Bronze chest
+                    2 => 8,
+                    //Silver chest
+                    3 => 14,
+                    //Gold chest
+                    4 => 22,
+                    //Diamond chest
+                    5 => 34,
+                    //Void chest
+                    6 => 50,
+                    _ => 0
+                };
+
+                tempCurrentCoins += reward;
+                // persist coins and update score to Settings so stats updater can read it
+                Sources.Settings.Player.Coins = tempCurrentCoins;
+                Sources.Settings.Player.Score += reward * 5;
+                // persist to disk
+                try { Sources.Settings.Save("settings.json"); } catch { }
+                // fire-and-forget: push stats to server on change
+                try
+                {
+                    var apiBase = Sources.Settings.Api.BaseUrl;
+                    if (!string.IsNullOrEmpty(apiBase))
+                    {
+                        Task.Run(async () =>
+                        {
+                            try
+                            {
+                                using var api = new Sources.JsonCrudApi(apiBase);
+                                await api.UpdatePlayerStatsAsync();
+                            }
+                            catch { }
+                        });
+                    }
+                }
+                catch { }
+            }
 
             if (Level.Sprites[i].Interacted == false)
             {
@@ -340,7 +409,8 @@ internal partial class Engine
         v1,
         sType,
         sId,
-        spriteDepth);
+        spriteDepth,
+        0f);
     }
 
     void HandleItems(
@@ -354,6 +424,24 @@ internal partial class Engine
         float quadY2,
         float spriteDepth)
     {
+        float pickupDist = tileSize * 0.55f;
+        float dx = spriteWorldPos.X - playerPosition.X;
+        float dy = spriteWorldPos.Y - playerPosition.Y;
+
+        if ((dx * dx + dy * dy) <= (pickupDist * pickupDist))
+        {
+            Level.Sprites[i].State = false;
+
+            //Heal
+            if (sId == 0)
+                tempPlayerCurrentHealth = Math.Min(tempPlayerMaxHealth, tempPlayerCurrentHealth + 50);
+
+            //Ammo -> TODO later
+
+            TriggerPlayerPickupOverlay();
+            return;
+        }
+
         // Horizontal animation based on sprite type config (one row per type)
         float u0 = 0f;
         float u1 = itemSpriteCellSize / itemAtlasSize.X;
@@ -381,7 +469,8 @@ internal partial class Engine
         v1,
         sType,
         sId,
-        spriteDepth);
+        spriteDepth,
+        0f);
     }
 
     //Enemy settings
@@ -403,6 +492,125 @@ internal partial class Engine
     //Enemy runtime state
     //0: idle,1: walk,2: attack
     static readonly Dictionary<int, int> enemyAnimState = new();
+    static readonly Dictionary<int, bool> enemyAttackDidDamage = new();
+    static readonly Dictionary<int, int> enemyAttackLastFrame = new();
+    static readonly Dictionary<int, float> enemyDamageOverlayTimers = new();
+
+    void ResetCombatRuntimeStates()
+    {
+        enemyAnimState.Clear();
+        enemyAttackDidDamage.Clear();
+        enemyAttackLastFrame.Clear();
+        enemyDamageOverlayTimers.Clear();
+        _spriteAnimTime = 0f;
+    }
+
+    void TryDealPlayerSlashDamage()
+    {
+        float attackRange = tileSize * 1.15f;
+        float attackRangeSq = attackRange * attackRange;
+        Vector2 playerForward = (MathF.Cos(playerAngle), MathF.Sin(playerAngle));
+
+        for (int i = 0; i < Level.Sprites.Count; i++)
+        {
+            var sprite = Level.Sprites[i];
+
+            //Only active enemies can be damaged
+            if (!sprite.State || sprite.Type != 2)
+                continue;
+
+            Vector2 enemyPosPx = (
+                (sprite.Position.X + 0.5f) * tileSize,
+                (sprite.Position.Y + 0.5f) * tileSize);
+
+            Vector2 toEnemy = (enemyPosPx.X - playerPosition.X, enemyPosPx.Y - playerPosition.Y);
+            float distSq = (toEnemy.X * toEnemy.X) + (toEnemy.Y * toEnemy.Y);
+
+            if (distSq > attackRangeSq || distSq <= 1e-6f)
+                continue;
+
+            Vector2 toEnemyDir = toEnemy;
+            toEnemyDir.Normalize();
+
+            //Small frontal cone so the slash does not hit behind the player
+            float facingDot = Vector2.Dot(playerForward, toEnemyDir);
+            if (facingDot < 0.35f)
+                continue;
+
+            int enemyHp = sprite.Health ?? 0;
+            enemyHp -= playerBaseDamage;
+            Level.Sprites[i].Health = enemyHp;
+
+            if (enemyHp <= 0)
+            {
+                Level.Sprites[i].State = false;
+                enemyAnimState.Remove(i);
+                enemyAttackDidDamage.Remove(i);
+                enemyAttackLastFrame.Remove(i);
+                enemyDamageOverlayTimers.Remove(i);
+                tempCurrentCoins += enemyKillRewardCoins;
+                // persist coins and increment enemy killed stat
+                Sources.Settings.Player.Coins = tempCurrentCoins;
+                Sources.Settings.Player.NumOfEnemiesKilled = Sources.Settings.Player.NumOfEnemiesKilled + 1;
+                // fire-and-forget: push stats to server on change
+                try
+                {
+                    var apiBase = Sources.Settings.Api.BaseUrl;
+                    if (!string.IsNullOrEmpty(apiBase))
+                    {
+                        // persist to disk
+                        try { Sources.Settings.Save("settings.json"); } catch { }
+                        Task.Run(async () =>
+                        {
+                            try
+                            {
+                                using var api = new Sources.JsonCrudApi(apiBase);
+                                await api.UpdatePlayerStatsAsync();
+                            }
+                            catch { }
+                        });
+                    }
+                }
+                catch { }
+                continue;
+            }
+
+            enemyDamageOverlayTimers[i] = enemyDamageOverlayDuration;
+
+            //Small knockback from player to enemy while still respecting collisions
+            float knockBackDistance = tileSize * 0.25f;
+            Vector2 enemyPosAfterHit = enemyPosPx;
+            float moveX = toEnemyDir.X * knockBackDistance;
+            float moveY = toEnemyDir.Y * knockBackDistance;
+
+            Vector2 candidateX = (enemyPosAfterHit.X + moveX, enemyPosAfterHit.Y);
+            if (!IsEnemyMoveBlockedX(enemyPosAfterHit, moveX) &&
+                !IsEnemyOverlappingOtherEnemy(i, candidateX))
+                enemyPosAfterHit.X += moveX;
+
+            Vector2 candidateY = (enemyPosAfterHit.X, enemyPosAfterHit.Y + moveY);
+            if (!IsEnemyMoveBlockedY(enemyPosAfterHit, moveY) &&
+                !IsEnemyOverlappingOtherEnemy(i, candidateY))
+                enemyPosAfterHit.Y += moveY;
+
+            Level.Sprites[i].Position = (enemyPosAfterHit.X / tileSize - 0.5f, enemyPosAfterHit.Y / tileSize - 0.5f);
+        }
+    }
+
+    void ApplyDamageToPlayer(int damage)
+    {
+        if (!isInGame || damage <= 0)
+            return;
+
+        tempPlayerCurrentHealth -= damage;
+        if (tempPlayerCurrentHealth < 0)
+            tempPlayerCurrentHealth = 0;
+
+        TriggerPlayerDamageOverlay();
+
+        if (tempPlayerCurrentHealth <= 0)
+            HandlePlayerDeath();
+    }
 
     bool IsEnemyMoveBlockedX(Vector2 posPx, float moveX)
     {
@@ -584,11 +792,43 @@ internal partial class Engine
         if (frameCount > 1 && fps > 0f)
             frame = (int)(_spriteAnimTime * fps) % frameCount;
 
+        if (state == 2)
+        {
+            if (!enemyAttackDidDamage.TryGetValue(i, out bool didDamage))
+                didDamage = false;
+
+            if (!enemyAttackLastFrame.TryGetValue(i, out int lastFrame))
+                lastFrame = frame;
+
+            //A new attack cycle has started
+            if (frame < lastFrame)
+                didDamage = false;
+
+            //Middle of enemy attack animation -> apply hit once
+            if (frame >= 2 && !didDamage)
+            {
+                ApplyDamageToPlayer(enemyBaseDamage);
+                didDamage = true;
+            }
+
+            enemyAttackDidDamage[i] = didDamage;
+            enemyAttackLastFrame[i] = frame;
+        }
+        else
+        {
+            enemyAttackDidDamage.Remove(i);
+            enemyAttackLastFrame.Remove(i);
+        }
+
         float u0 = (frame * enemySpriteCellSize) / enemyAtlasSize.X;
         float u1 = ((frame + 1) * enemySpriteCellSize) / enemyAtlasSize.X;
 
         float v0 = 1 - ((row + 1) * enemySpriteCellSize / enemyAtlasSize.Y);
         float v1 = 1 - (row * enemySpriteCellSize / enemyAtlasSize.Y);
+
+        float damageOverlayAlpha = 0f;
+        if (enemyDamageOverlayTimers.TryGetValue(i, out float damageOverlayTimer) && damageOverlayTimer > 0f)
+            damageOverlayAlpha = (damageOverlayTimer / enemyDamageOverlayDuration) * enemyDamageOverlayMaxAlpha;
         //=====================================================================================
 
         UploadSprite(
@@ -602,7 +842,8 @@ internal partial class Engine
         v1,
         sType,
         sId,
-        spriteDepth);
+        spriteDepth,
+        damageOverlayAlpha);
     }
 
     //Universal vertex attribute uploader
@@ -617,7 +858,8 @@ internal partial class Engine
         float v1,
         int sType,
         int sId,
-        float spriteDepth)
+        float spriteDepth,
+        float damageOverlayAlpha)
     {
         ShaderHandler.SpriteVertexAttribList.AddRange(new float[]
         {
@@ -631,7 +873,8 @@ internal partial class Engine
             v1,
             sType,
             sId,
-            spriteDepth
+            spriteDepth,
+            damageOverlayAlpha
         });
     }
 }

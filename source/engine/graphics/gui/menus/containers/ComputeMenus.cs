@@ -167,17 +167,17 @@ internal partial class Engine
             89f / 255f,
             82f / 255f);
 
-        //Statistics
-        //Alias
+        //Statistics (dynamic from Settings.Player)
+        // Alias (username)
         LoadTextAttribs(
-            $"Lacika",
+            $"{Sources.Settings.Player.Username ?? "Player"}",
             screenHorizontalOffset + (minimumScreenSize / 2.72f),
             screenVerticalOffset + (minimumScreenSize / 1.49f),
             2f,
             new Vector3(aliasFontColor)
         );
 
-        //Joined
+        // Joined
         LoadTextAttribs(
             $"Joined:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
@@ -185,17 +185,15 @@ internal partial class Engine
             1.5f,
             new Vector3(statFontColor)
         );
-
-        //Joined value
         LoadTextAttribs(
-            $"26-03-17",
+            $"{Sources.Settings.Player.JoinTime ?? "-"}",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 1.87f),
             1f,
             new Vector3(statFontColor)
         );
 
-        //Time played
+        // Time played
         LoadTextAttribs(
             $"Time played:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
@@ -203,17 +201,15 @@ internal partial class Engine
             1.5f,
             new Vector3(statFontColor)
         );
-
-        //Time played value
         LoadTextAttribs(
-            $"2h 34m",
+            $"{Sources.Settings.Player.TimePlayed ?? "0h 0m"}",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 2.16f),
             1f,
             new Vector3(statFontColor)
         );
 
-        //Story done
+        // Story done
         LoadTextAttribs(
             $"Story done:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
@@ -221,17 +217,15 @@ internal partial class Engine
             1.5f,
             new Vector3(statFontColor)
         );
-
-        //Story done value
         LoadTextAttribs(
-            $"True",
+            $"{(Sources.Settings.Player.NumOfStoryFinished > 0 ? Sources.Settings.Player.NumOfStoryFinished.ToString() : "0")}",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 2.55f),
             1f,
             new Vector3(statFontColor)
         );
 
-        //Enemy kill
+        // Enemy kills
         LoadTextAttribs(
             $"Enemy kill:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
@@ -239,17 +233,15 @@ internal partial class Engine
             1.5f,
             new Vector3(statFontColor)
         );
-
-        //Enemy kill value
         LoadTextAttribs(
-            $"120",
+            $"{(Sources.Settings.Player.NumOfEnemiesKilled > 0 ? Sources.Settings.Player.NumOfEnemiesKilled.ToString() : "0")}",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 3.1f),
             1f,
             new Vector3(statFontColor)
         );
 
-        //Deaths
+        // Deaths
         LoadTextAttribs(
             $"Deaths:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
@@ -257,17 +249,15 @@ internal partial class Engine
             1.5f,
             new Vector3(statFontColor)
         );
-
-        //Deaths value
         LoadTextAttribs(
-            $"2",
+            $"{(Sources.Settings.Player.NumOfDeaths > 0 ? Sources.Settings.Player.NumOfDeaths.ToString() : "0")}",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 3.9f),
             1f,
             new Vector3(statFontColor)
         );
 
-        //Score
+        // Score
         LoadTextAttribs(
             $"Score:",
             screenHorizontalOffset + (minimumScreenSize / 5f),
@@ -275,15 +265,20 @@ internal partial class Engine
             1.5f,
             new Vector3(statFontColor)
         );
-
-        //Score value
         LoadTextAttribs(
-            $"1230",
+            $"{Sources.Settings.Player.Coins}",
             screenHorizontalOffset + (minimumScreenSize / 1.65f),
             screenVerticalOffset + (minimumScreenSize / 5.45f),
             1f,
             new Vector3(statFontColor)
         );
+
+        // Debug: print current runtime stat values to console so developer can see what's loaded
+        try
+        {
+            Console.WriteLine($"[StatsMenu] Username={Sources.Settings.Player.Username} JoinTime={Sources.Settings.Player.JoinTime} TimePlayed={Sources.Settings.Player.TimePlayed} Coins={Sources.Settings.Player.Coins} Level={Sources.Settings.Player.Level} StoryDone={Sources.Settings.Player.NumOfStoryFinished} Kills={Sources.Settings.Player.NumOfEnemiesKilled} Deaths={Sources.Settings.Player.NumOfDeaths} Score={Sources.Settings.Player.Score}");
+        }
+        catch { }
     }
 
     void HandlePauseMenu()

@@ -13,6 +13,8 @@ layout (location = 2) in float aSpriteType;
 layout (location = 3) in float aSpriteId;
     //Sprite depth in camera-space
 layout (location = 4) in float aSpriteDepth;
+    //Sprite damage overlay alpha
+layout (location = 5) in float aDamageOverlayAlpha;
 
 uniform mat4 uProjection;
 
@@ -23,6 +25,8 @@ out float vSpriteType;
 out float vSpriteId;
 
 out float vSpriteDepth;
+
+out float vDamageOverlayAlpha;
 //==============================================================
 
 void main()
@@ -58,4 +62,5 @@ void main()
     vSpriteType = aSpriteType;
     vSpriteId = aSpriteId;
     vSpriteDepth = aSpriteDepth;
+    vDamageOverlayAlpha = aDamageOverlayAlpha;
 }

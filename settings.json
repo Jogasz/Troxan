@@ -14,4 +14,9 @@
   "Gameplay": {
     "TileSize": 50
   }
+  ,
+  "Api": {
+    "BaseUrl": "http://178.104.68.69/troxan/app/api.php?path=game_login",
+    "Token": ""
+  }
 }
