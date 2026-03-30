@@ -16,7 +16,7 @@
   }
   ,
   "Api": {
-    "BaseUrl": "http://178.104.68.69/troxan/app/api.php?path=game_login",
+    "BaseUrl": "https://troxan.site/app/api.php?path=game_login",
     "Token": ""
   }
 }

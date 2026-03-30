@@ -1,100 +1,163 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="Engine.RayCasting">
-    <Position X="12" Y="0.5" Width="1.5" />
+  <Class Name="Sources.Textures">
+    <Position X="0.5" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Methods" Collapsed="true" />
+      <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAEBAAAIAACAAAAAAAAAAAAAAAAAAAAAAAAAAI=</HashCode>
-      <FileName>source\engine\graphics\geometry\ceiling\ComputeCeiling.cs</FileName>
+      <HashCode>ADAAAEAAACAgAACAAgAQAAAABCAEAEMwAoiAAACAIQE=</HashCode>
+      <FileName>source\Textures.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="Engine.Engine">
     <Position X="2" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Methods" Collapsed="true" />
-    </Compartments>
-    <TypeIdentifier>
-      <HashCode>IAABoAGAJYEQSQEAGEACEEISYCCIQWKBAhEgACAQkAM=</HashCode>
-      <FileName>source\engine\graphics\gui\menus\buttons\Buttons.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Level">
-    <Position X="5" Y="0.5" Width="1.5" />
-    <Compartments>
-      <Compartment Name="Methods" Collapsed="true" />
-      <Compartment Name="Nested Types" Collapsed="false" />
+      <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <NestedTypes>
-      <Class Name="Level.SpriteData">
+      <Struct Name="Engine.Engine.SpriteAnimConfig" Collapsed="true">
         <TypeIdentifier>
-          <NewMemberFileName>source\Level.cs</NewMemberFileName>
+          <NewMemberFileName>source\engine\graphics\geometry\sprites\ComputeSprites.cs</NewMemberFileName>
         </TypeIdentifier>
-      </Class>
-      <Class Name="Level.MapData">
+      </Struct>
+      <Enum Name="Engine.Engine.MenuId" Collapsed="true">
         <TypeIdentifier>
-          <NewMemberFileName>source\Level.cs</NewMemberFileName>
+          <NewMemberFileName>source\engine\Engine.cs</NewMemberFileName>
         </TypeIdentifier>
-      </Class>
+      </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAAAAAIAAAAAIEAAAAAAAA=</HashCode>
-      <FileName>source\Level.cs</FileName>
+      <HashCode>JU6BoUaALYVVybEvGMSKMF4maW3OcXh5hBMgA2KYmDM=</HashCode>
+      <FileName>source\engine\graphics\geometry\sprites\ComputeSprites.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Settings">
+  <Class Name="Sources.Settings">
     <Position X="3.5" Y="0.5" Width="1.5" />
-    <Compartments>
-      <Compartment Name="Methods" Collapsed="true" />
-      <Compartment Name="Nested Types" Collapsed="false" />
-    </Compartments>
     <NestedTypes>
-      <Class Name="Settings.SettingsData">
+      <Class Name="Sources.Settings.Player">
         <TypeIdentifier>
           <NewMemberFileName>source\Settings.cs</NewMemberFileName>
         </TypeIdentifier>
       </Class>
-      <Class Name="Settings.PlayerSettings">
-        <Compartments>
-          <Compartment Name="Methods" Collapsed="true" />
-        </Compartments>
+      <Class Name="Sources.Settings.Graphics">
         <TypeIdentifier>
           <NewMemberFileName>source\Settings.cs</NewMemberFileName>
         </TypeIdentifier>
       </Class>
-      <Class Name="Settings.GraphicsSettings">
-        <Compartments>
-          <Compartment Name="Methods" Collapsed="true" />
-        </Compartments>
+      <Class Name="Sources.Settings.Api">
         <TypeIdentifier>
           <NewMemberFileName>source\Settings.cs</NewMemberFileName>
         </TypeIdentifier>
       </Class>
-      <Class Name="Settings.GameplaySettings">
-        <Compartments>
-          <Compartment Name="Methods" Collapsed="true" />
-        </Compartments>
+      <Class Name="Sources.Settings.Gameplay">
         <TypeIdentifier>
           <NewMemberFileName>source\Settings.cs</NewMemberFileName>
         </TypeIdentifier>
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAwAAAAA=</HashCode>
+      <HashCode>AAAAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>source\Settings.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Texture">
-    <Position X="0.5" Y="0.5" Width="1.5" />
+  <Class Name="Sources.Level">
+    <Position X="5" Y="0.5" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Sources.Level.SpriteTemplate">
+        <TypeIdentifier>
+          <NewMemberFileName>source\Level.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Sources.Level.StoryRoomTemplate">
+        <TypeIdentifier>
+          <NewMemberFileName>source\Level.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Sources.Level.CustomMetaDataTemplate">
+        <TypeIdentifier>
+          <NewMemberFileName>source\Level.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="Sources.Level.CustomMapDto">
+        <TypeIdentifier>
+          <NewMemberFileName>source\Level.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAyIAEAIBEAAAQABEIEAgEACABAAAAAIEAAiABAAA=</HashCode>
+      <FileName>source\Level.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Engine.RayCasting">
+    <Position X="6.75" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAwgAAEAmAABAAAAAAAAAAAEBAGAAYAAACAAAAAIAE=</HashCode>
-      <FileName>source\Texture.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAEAAACAIAAAQAAAAAI=</HashCode>
+      <FileName>source\engine\graphics\geometry\ceiling\ComputeCeiling.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Shaders.ShaderHandler">
+    <Position X="8.25" Y="0.5" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>ApmFiTBBoGMAAkFaCLolMBAYRCwkAJ6jNIQxAmQoB6s=</HashCode>
+      <FileName>source\engine\graphics\geometry\ceiling\CeilingShader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sources.JsonCrudApi">
+    <Position X="10" Y="0.5" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>ABAAAAAQACAAAAAAAAEAIAAAAABAAAwAAAICAABAAIA=</HashCode>
+      <FileName>source\Api\JsonCrudApi.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Sources.PlayerStats">
+    <Position X="11.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>source\Api\JsonCrudApi.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sources.Utils">
+    <Position X="0.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAEAAAAAA=</HashCode>
+      <FileName>source\engine\Utils.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sources.MathX">
+    <Position X="6.75" Y="1.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAABAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>utils\MathX.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Root.Program">
+    <Position X="8.25" Y="2.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>
