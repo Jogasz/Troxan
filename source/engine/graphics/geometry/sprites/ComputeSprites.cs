@@ -356,12 +356,12 @@ internal partial class Engine
                 };
 
                 tempCurrentCoins += reward;
-                // persist coins and update score to Settings so stats updater can read it
+                //Save runtime coins/score
                 Sources.Settings.Player.Coins = tempCurrentCoins;
                 Sources.Settings.Player.Score += reward * 5;
-                // persist to disk
+                //Save file
                 try { Sources.Settings.Save("settings.json"); } catch { }
-                // fire-and-forget: push stats to server on change
+                //Push stats async
                 try
                 {
                     var apiBase = Sources.Settings.Api.BaseUrl;
@@ -532,7 +532,7 @@ internal partial class Engine
             Vector2 toEnemyDir = toEnemy;
             toEnemyDir.Normalize();
 
-            //Small frontal cone so the slash does not hit behind the player
+            //Front hit cone
             float facingDot = Vector2.Dot(playerForward, toEnemyDir);
             if (facingDot < 0.35f)
                 continue;
@@ -549,16 +549,16 @@ internal partial class Engine
                 enemyAttackLastFrame.Remove(i);
                 enemyDamageOverlayTimers.Remove(i);
                 tempCurrentCoins += enemyKillRewardCoins;
-                // persist coins and increment enemy killed stat
+                //Save coins + kills
                 Sources.Settings.Player.Coins = tempCurrentCoins;
                 Sources.Settings.Player.NumOfEnemiesKilled = Sources.Settings.Player.NumOfEnemiesKilled + 1;
-                // fire-and-forget: push stats to server on change
+                //Push stats async
                 try
                 {
                     var apiBase = Sources.Settings.Api.BaseUrl;
                     if (!string.IsNullOrEmpty(apiBase))
                     {
-                        // persist to disk
+                        //Save file
                         try { Sources.Settings.Save("settings.json"); } catch { }
                         Task.Run(async () =>
                         {
@@ -577,7 +577,7 @@ internal partial class Engine
 
             enemyDamageOverlayTimers[i] = enemyDamageOverlayDuration;
 
-            //Small knockback from player to enemy while still respecting collisions
+            //Small knockback
             float knockBackDistance = tileSize * 0.25f;
             Vector2 enemyPosAfterHit = enemyPosPx;
             float moveX = toEnemyDir.X * knockBackDistance;

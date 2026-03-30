@@ -273,7 +273,7 @@ internal partial class Engine
             new Vector3(statFontColor)
         );
 
-        // Debug: print current runtime stat values to console so developer can see what's loaded
+        //Debug stats print
         try
         {
             Console.WriteLine($"[StatsMenu] Username={Sources.Settings.Player.Username} JoinTime={Sources.Settings.Player.JoinTime} TimePlayed={Sources.Settings.Player.TimePlayed} Coins={Sources.Settings.Player.Coins} Level={Sources.Settings.Player.Level} StoryDone={Sources.Settings.Player.NumOfStoryFinished} Kills={Sources.Settings.Player.NumOfEnemiesKilled} Deaths={Sources.Settings.Player.NumOfDeaths} Score={Sources.Settings.Player.Score}");

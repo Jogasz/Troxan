@@ -89,9 +89,7 @@ internal sealed class Textures : IDisposable
     public static int MapWallsTex { get; private set; }
     public static Vector2i MapSize { get; private set; }
 
-    /// <summary>
-    /// Loads non-map textures (atlases, UI, wall/sprite sheets). Call this once on startup.
-    /// </summary>
+    //Static textures
     public static void LoadStatic()
     {
         if (Walls.Count !=0) Walls.Clear();
@@ -109,12 +107,10 @@ internal sealed class Textures : IDisposable
         LoadInto(Fonts, fontPaths);
     }
 
-    /// <summary>
-    /// Loads/updates the map integer textures (R32i). Call this after a map was selected.
-    /// </summary>
+    //Map textures
     public static void LoadMapTextures(int[,] mapWalls, int[,] mapCeiling, int[,] mapFloor)
     {
-        // Reject zero-sized maps to avoid undefined GL state.
+        //Reject empty maps
         if (mapWalls.GetLength(0) ==0 || mapWalls.GetLength(1) ==0)
             throw new ArgumentException("mapWalls is empty");
         if (mapCeiling.GetLength(0) ==0 || mapCeiling.GetLength(1) ==0)
@@ -133,7 +129,7 @@ internal sealed class Textures : IDisposable
         MapSize = (mapWalls.GetLength(1), mapWalls.GetLength(0));
     }
 
-    // Backwards-compatible: keep old API but delegate.
+    //Legacy entry
     public static void LoadAll(int[,] mapWalls, int[,] mapCeiling, int[,] mapFloor)
     {
         LoadStatic();

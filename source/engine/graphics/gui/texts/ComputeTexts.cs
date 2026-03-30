@@ -14,11 +14,10 @@ internal partial class Engine
     float charHeight = 37f;
     float charWidth = 27f;
 
-    // DrawText now accepts a fontSize parameter (monospaced cells are27x37 in atlas).
-    // fontSize is a multiplier; final glyph size also scales with minimumScreenSize so text adapts to window size.
+    //Monospace atlas text renderer
     void LoadTextAttribs(string text, float x, float y, float fontSize, Vector3 color)
     {
-        //Monospaced: each glyph is a fixed-width cell in a single row.
+        //Single row atlas
         float atlasW = fontAtlas.X;
         float atlasH = fontAtlas.Y;
 
@@ -26,17 +25,15 @@ internal partial class Engine
         float v0 = 0f;
         float v1 = 1f;
 
-        // Compute pixel size for glyphs:
-        // base glyph is charWidth x charHeight (27x37). Scale by fontSize and by minimumScreenSize so text adapts to window.
-        // Use a baseline reference of1200 px for minimumScreenSize so fontSize==1 is fairly small on typical windows.
+        //Glyph size in pixels
         float baseline = 1200f;
         float sizeScale = fontSize * (minimumScreenSize / baseline);
         float pixelCharWidth = charWidth * sizeScale;
         float pixelCharHeight = charHeight * sizeScale;
 
-        // Start pen at provided X,Y as top-left of first character.
+        //Top-left origin
         float penX = x;
-        float penY = y - pixelCharHeight; // convert top to bottom coordinate used by shader
+        float penY = y - pixelCharHeight;
 
         for (int i = 0; i < text.Length; i++)
         {
@@ -48,7 +45,7 @@ internal partial class Engine
                 continue;
             }
 
-            // Treat other whitespace (space, tab, etc.) as advance only
+            //Whitespace advance
             if (char.IsWhiteSpace(c))
             {
                 penX += pixelCharWidth;
@@ -65,7 +62,7 @@ internal partial class Engine
             float u0 = uStep * idx;
             float u1 = uStep * (idx + 1);
 
-            //Per instance: aPos(x1,x2,y1,y2) in screen pixels (projection handles it)
+            //Per-instance rect + uv + color
             float x1 = penX;
             float x2 = penX + pixelCharWidth;
             float y1 = penY + pixelCharHeight;
