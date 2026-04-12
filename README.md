@@ -24,11 +24,6 @@ Troxan is a retro-inspired raycasting dungeon game built with `.NET 8` and `Open
 ## Project Structure
 -`source/` core gameplay, engine, rendering logic
 -`assets/` maps, textures, and game resources
--`documents/` project documentation
-
-## Documentation
-Full solution documentation is available at:
--`documents/jatek-dokumentacio.md`
 
 ## Status
 Active development.
