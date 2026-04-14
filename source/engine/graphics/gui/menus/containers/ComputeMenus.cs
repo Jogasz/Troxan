@@ -44,6 +44,33 @@ internal partial class Engine
     //Author, Descripton/ Created at
     Vector3 secondTextClr = (96f / 255f, 89f / 255f, 82f / 255f);
 
+    // Normalized button centers (X,Y) in menu-space: 0..1 inside the square viewport
+    readonly Vector2[] campaignButtonCenters =
+    {
+        new(0.25f, 0.18f), // Left arrow
+        new(0.75f, 0.18f), // Right arrow
+        new(0.50f, 0.23f), // Play
+        new(0.50f, 0.15f), // Back
+    };
+
+    readonly Vector2[] customsButtonCenters =
+    {
+        new(0.25f, 0.18f), // Left arrow
+        new(0.75f, 0.18f), // Right arrow
+        new(0.50f, 0.22f), // Play
+        new(0.50f, 0.15f), // Back
+    };
+
+    readonly Vector2[] settingsButtonCenters =
+    {
+        new(0.50f, 0.15f), // Back
+    };
+
+    readonly Vector2[] statisticsButtonCenters =
+    {
+        new(0.50f, 0.12f), // Back
+    };
+
     void InitMenuHandlers()
     {
         menuHandlers = new()
@@ -88,7 +115,7 @@ internal partial class Engine
         );
 
         LoadMenuAttribs(1);
-        LoadButtonAttribs(buttonIds);
+        LoadButtonAttribs(buttonIds, campaignButtonCenters);
     }
 
     void HandleCustomsMenu()
@@ -139,7 +166,7 @@ internal partial class Engine
         );
 
         LoadMenuAttribs(2);
-        LoadButtonAttribs(buttonIds);
+        LoadButtonAttribs(buttonIds, customsButtonCenters);
     }
 
     void HandleSettingsMenu()
@@ -147,7 +174,7 @@ internal partial class Engine
         buttonIds = new int[] { 7 };
 
         LoadMenuAttribs(3);
-        LoadButtonAttribs(buttonIds);
+        LoadButtonAttribs(buttonIds, settingsButtonCenters);
     }
 
     void HandleStatisticsMenu()
@@ -155,7 +182,7 @@ internal partial class Engine
         buttonIds = new int[] { 7 };
 
         LoadMenuAttribs(4);
-        LoadButtonAttribs(buttonIds);
+        LoadButtonAttribs(buttonIds, statisticsButtonCenters);
 
         Vector3 aliasFontColor = (
             232f / 255f,
@@ -273,12 +300,6 @@ internal partial class Engine
             new Vector3(statFontColor)
         );
 
-        //Debug stats print
-        try
-        {
-            Console.WriteLine($"[StatsMenu] Username={Sources.Settings.Player.Username} JoinTime={Sources.Settings.Player.JoinTime} TimePlayed={Sources.Settings.Player.TimePlayed} Coins={Sources.Settings.Player.Coins} Level={Sources.Settings.Player.Level} StoryDone={Sources.Settings.Player.NumOfStoryFinished} Kills={Sources.Settings.Player.NumOfEnemiesKilled} Deaths={Sources.Settings.Player.NumOfDeaths} Score={Sources.Settings.Player.Score}");
-        }
-        catch { }
     }
 
     void HandlePauseMenu()

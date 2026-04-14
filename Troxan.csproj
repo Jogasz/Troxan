@@ -55,6 +55,12 @@
     <None Remove="assets\maps\customs\Enemy_Medium_3\map.json" />
     <None Remove="assets\maps\customs\Enemy_Medium_3\map.png" />
     <None Remove="assets\maps\customs\Enemy_Medium_3\metadata.json" />
+    <None Remove="assets\maps\customs\Labyrinth_Crossroads\map.json" />
+    <None Remove="assets\maps\customs\Labyrinth_Crossroads\map.png" />
+    <None Remove="assets\maps\customs\Labyrinth_Crossroads\metadata.json" />
+    <None Remove="assets\maps\customs\Arena_Gauntlet\map.json" />
+    <None Remove="assets\maps\customs\Arena_Gauntlet\map.png" />
+    <None Remove="assets\maps\customs\Arena_Gauntlet\metadata.json" />
     <None Remove="assets\maps\customs\Spawn_Room\map.json" />
     <None Remove="assets\maps\customs\Spawn_Room\map.png" />
     <None Remove="assets\maps\customs\Spawn_Room\metadata.json" />
@@ -68,6 +74,8 @@
     <None Remove="assets\maps\story\info.json" />
     <None Remove="assets\maps\story\info.txt" />
     <None Remove="assets\maps\story\levels\1.json" />
+    <None Remove="assets\maps\story\levels\2.json" />
+    <None Remove="assets\maps\story\levels\3.json" />
     <None Remove="assets\maps\story\rooms\boss.json" />
     <None Remove="assets\maps\story\rooms\enemy_easy_1.json" />
     <None Remove="assets\maps\story\rooms\enemy_easy_2.json" />
@@ -223,6 +231,24 @@
     <Content Include="assets\maps\customs\Enemy_Medium_3\metadata.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="assets\maps\customs\Labyrinth_Crossroads\map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Labyrinth_Crossroads\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Labyrinth_Crossroads\metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Arena_Gauntlet\map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Arena_Gauntlet\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\customs\Arena_Gauntlet\metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="assets\maps\customs\Spawn_Room\map.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -236,6 +262,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\maps\story\levels\1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\levels\2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\maps\story\levels\3.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\maps\story\rooms\boss.json">

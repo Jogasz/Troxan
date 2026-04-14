@@ -10,9 +10,9 @@ namespace Engine;
 internal partial class Engine
 {
     const float sprintSpeedMultiplier = 1.7f;
-    const float sprintStaminaDrainPerSecond = 30f;
-    const float sprintStaminaRegenPerSecond = 18f;
-    const float sprintStaminaRegenDelay = 0.9f;
+    const float sprintStaminaDrainPerSecond = 25f;
+    const float sprintStaminaRegenPerSecond = 10f;
+    const float sprintStaminaRegenDelay = 2f;
 
     void UpdateSprintStamina(KeyboardState keyboard)
     {
@@ -78,6 +78,31 @@ internal partial class Engine
         return false;
     }
 
+    bool IsPlayerBlockedByAnySprite(Vector2 candidatePlayerPos)
+    {
+        float spriteCollisionRadius = tileSize * 0.30f;
+        float minDistance = playerCollisionRadius + spriteCollisionRadius;
+        float minDistanceSq = minDistance * minDistance;
+
+        for (int i = 0; i < Level.Sprites.Count; i++)
+        {
+            var sprite = Level.Sprites[i];
+            if (!sprite.State) continue;
+
+            Vector2 spritePosPx = (
+                (sprite.Position.X + 0.5f) * tileSize,
+                (sprite.Position.Y + 0.5f) * tileSize);
+
+            Vector2 delta = candidatePlayerPos - spritePosPx;
+            float dist = delta.Length;
+
+            if ((dist * dist) <= minDistanceSq)
+                return true;
+        }
+
+        return false;
+    }
+
     void CheckPlayerWallBlock(
         Vector2 playerPos,
         Vector2 rotatedVector,
@@ -113,6 +138,19 @@ internal partial class Engine
                 mapWalls[tempYBlocked_Y_M, tempYBlocked_X_P] > 0 ||
                 mapWalls[tempYBlocked_Y_P, tempYBlocked_X_M] > 0 ||
                 mapWalls[tempYBlocked_Y_M, tempYBlocked_X_M] > 0;
+
+        if (!IsXBlocked)
+        {
+            Vector2 candidateX = (playerPos.X + rotatedVector.X * playerDeltaMovementSpeed, playerPos.Y);
+            IsXBlocked = IsPlayerBlockedByAnySprite(candidateX);
+        }
+
+        if (!IsYBlocked)
+        {
+            Vector2 candidateY = (playerPos.X, playerPos.Y + rotatedVector.Y * playerDeltaMovementSpeed);
+            IsYBlocked = IsPlayerBlockedByAnySprite(candidateY);
+        }
+
     }
 
     void Controls(KeyboardState keyboard, MouseState mouse)
@@ -227,22 +265,26 @@ internal partial class Engine
             FOV = Settings.Graphics.FOV;
         }
 
+        // Resolve X and Y separately so one blocked axis does not stop the other.
         CheckPlayerWallBlock(
             _PlayerPosition,
-            rotatedVector,
+            new Vector2(rotatedVector.X, 0f),
             playerDeltaMovementSpeed,
             out IsXBlocked,
+            out _);
+
+        if (!IsXBlocked)
+            _PlayerPosition.X += rotatedVector.X * playerDeltaMovementSpeed;
+
+        CheckPlayerWallBlock(
+            _PlayerPosition,
+            new Vector2(0f, rotatedVector.Y),
+            playerDeltaMovementSpeed,
+            out _,
             out IsYBlocked);
 
-        //Allowing player to move if the collision checker gave permission
-        if (!IsXBlocked)
-        {
-            _PlayerPosition.X += rotatedVector.X * playerDeltaMovementSpeed;
-        }
         if (!IsYBlocked)
-        {
             _PlayerPosition.Y += rotatedVector.Y * playerDeltaMovementSpeed;
-        }
 
         playerPosition = _PlayerPosition;
     }

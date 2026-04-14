@@ -1,6 +1,7 @@
 ﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using OpenTK.Mathematics;
 using static OpenTK.Windowing.Common.Input.MouseCursor;
 
 using Shaders;
@@ -223,7 +224,7 @@ internal partial class Engine
     //Previous mouse state tracking
     bool _prevMouseDown;
 
-    void LoadButtonAttribs(int[] buttonIds)
+    void LoadButtonAttribs(int[] buttonIds, Vector2[]? customButtonCenters = null)
     {
         float buttonHeight = minimumScreenSize / 15f;
         float buttonsGap = minimumScreenSize / 100f;
@@ -254,10 +255,30 @@ internal partial class Engine
 
             float buttonWidth = (buttonHeight / originalButtonsHeight) * buttonsWidth[id];
 
-            float quadX1 = horizontalHalfScreen - buttonWidth / 2f;
-            float quadX2 = horizontalHalfScreen + buttonWidth / 2f;
-            float quadY1 = verticalHalfScreen - (i + 1f) * buttonHeight - i * buttonsGap;
-            float quadY2 = verticalHalfScreen - (i + 2f) * buttonHeight - i * buttonsGap;
+            float quadX1;
+            float quadX2;
+            float quadY1;
+            float quadY2;
+
+            bool hasCustomCenter = customButtonCenters != null && i < customButtonCenters.Length;
+
+            if (hasCustomCenter)
+            {
+                float centerX = screenHorizontalOffset + customButtonCenters[i].X * minimumScreenSize;
+                float centerY = screenVerticalOffset + customButtonCenters[i].Y * minimumScreenSize;
+
+                quadX1 = centerX - buttonWidth / 2f;
+                quadX2 = centerX + buttonWidth / 2f;
+                quadY1 = centerY + buttonHeight / 2f;
+                quadY2 = centerY - buttonHeight / 2f;
+            }
+            else
+            {
+                quadX1 = horizontalHalfScreen - buttonWidth / 2f;
+                quadX2 = horizontalHalfScreen + buttonWidth / 2f;
+                quadY1 = verticalHalfScreen - (i + 1f) * buttonHeight - i * buttonsGap;
+                quadY2 = verticalHalfScreen - (i + 2f) * buttonHeight - i * buttonsGap;
+            }
 
             bool isHover = IsPointInQuad(mouseX, mouseY, quadX1, quadX2, quadY1, quadY2);
             bool isClick = isHover && mouseDown;
